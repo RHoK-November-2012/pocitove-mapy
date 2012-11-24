@@ -1,122 +1,68 @@
-var Shred = require("shred");
-var settings = require("../settings")
+maps = require("mongoskin").db('localhost:27017/pomapy').collection('maps');
 
-exports.fill_map = function(req, res){
-	res.render('mapFill', { title: 'mapFill',
-        page: "mapFill",
-        user: req.session['user']
-    });
-}
-
-// Later, we will get this ID from Mongo:
-var theTableId = "1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA"
-
-exports.add_shapes = function(req, res){
-	make_query("https://www.googleapis.com/fusiontables/v1/query",
-		"INSERT INTO '" + theTableId + "' (Submission) VALUES ('" + make_kml(req.body.submission) + "')",
-		function () {
-			res.write("ok.");
-			res.end();
-		})
-	// "https://www.googleapis.com/fusiontables/v1/tables/1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA/columns"
+// /maps
+exports.show = function(req, res) {
+	maps.find().toArray(function(err, maps) {
+		res.render('mapList', {
+			title: 'Atlas map',
+			page: 'mapList',
+			user: req.session['user'],
+			model: maps
+		});
+	});
 };
 
-function make_kml(inputJson)
-{
-	kml = "";
-	if (inputJson.points)
-	{
-		for (var i=0; i<inputJson.points.length; i++)
-		{
-			point = inputJson.points[i];
-			kml += "<Point><coordinates>" + point.lat + "," + point.lng + "</coordinates></Point>";
-		}
-	}
-	if (inputJson.polylines)
-	{
-		for (var i=0; i<inputJson.polylines.length; i++)
-		{
-			polyline = inputJson.polylines[i];
-			kml += "<Polygon><outerBoundaryIs><LinearRing><coordinates>" + polyline.map(function(o){ o.lat + "," + o.lng }).join(" ") + "</coordinates></LinearRing></outerBoundaryIs></Polygon>";
-		}
-	}
-	if (inputJson.polygons)
-	{
-		for (var i=0; i<inputJson.polygons.length; i++)
-		{
-			polygon = inputJson.polygons[i];
-			kml += "<MultiGeometry><LineString><coordinates>" + polygons.map(function(o){ o.lat + "," + o.lng}).join(" ") + "</coordinates></LineString></MultiGeometry>";
-		}
-	}
-	return kml;
-}
+// /maps/:mapId
+exports.show = function(req, res) {
+	maps.findOne({ "_id": req.param("mapId") }, function (map) {
+		res.render('mapShow', {
+			title: 'Prohlížení mapy',
+			page: 'mapShow',
+			user: req.session['user'],
+			model: map
+		});
+	});
+};
 
-function make_query(url, post, callback, repeatedCall)
-{
-	shred = new Shred();
-	config = {
-		url: url,
-		headers: {
-			Accept: "application/json",
-			"Authorization": "OAuth " + settings.ACCESS
-		},
-		on: {
-			200: function (response) {
-				callback(response.content.data);
-			},
-			response: function (response) {
-				if (repeatedCall)
-				{
-					console.log("I've got a new token, but I still cannot authenticate.");
-					return;
-				}
-				console.log("I guess I have to refresh my token. What a drag.");
+// /maps/:mapId/fill
+exports.fill = function(req, res) {
+	maps.findOne({ "_id": req.param("mapId") }, function (map) {
+		res.render('mapFill', {
+			title: 'Vyplňování mapy',
+        	page: 'mapFill',
+        	user: req.session['user'],
+        	model: map
+    	});
+	});
+};
 
-				shred.post({
-					url: "https://accounts.google.com/o/oauth2/token",
-					content: {
-						"client_id": settings.CLIENTID,
-						"client_secret": settings.CLIENTSECRET,
-						"refresh_token": settings.REFRESH,
-						"grant_type": "refresh_token"
-					},
-					on: {
-						200: function (token) {
-							settings.ACCESS = token.content.data;
-							make_query(url, callback, true);
-						},
-						response: function(response) {
-							console.log("I have not been able to obtain new token. Giving up.");
-						}
-					}
-				});
-			}
-		}
-    };
-    if (!post)
-    {
-        shred.get(config);
-    }
-    else
-    {
-        config.content = post;
-        shred.post(config);
-    }
-}
+// /maps/save
+exports.save = function(req, res) {
+	res.send(req.body);
+};
 
-exports.get_new_map = function(req, res) {
-    if (req.session['user']) {
-        res.render('new_map', { title: "Vytvoření nové mapy",
-            page: "new_map",
-            user: req.session['user']
-        });
-    } else {
-        // TODO(davidmarek): Dodelat stranku pro login.
-        res.redirect('/login');
-    }
-}
+// /maps/design
+exports.design = function(req, res){
+	res.render('mapDesign', {
+		title: 'Návrh nové mapy',
+		page: 'mapDesign',
+		user: req.session['user']
+	});
+};
 
-exports.post_new_map = function(req, res) {
-    console.log(req.body);
+// /maps/:mapId/edit
+exports.edit = function(req, res) {
+	maps.findOne({ "_id": req.param("mapId") }, function (map) {
+		res.render('mapDesign', {
+			title: 'Úprava existující mapy',
+			page: 'mapDesign',
+			user: req.session['user'],
+			model: map
+		});
+	});
+};
+
+// /maps/create
+exports.create = function(req, res) {
     res.send(req.body);
-}
+};

@@ -41,32 +41,19 @@
                     <a class="brand" href="/">Pocitové mapy</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <% if (page == "list_maps") { %>
+                            <% if (page == "maps") { %>
                                 <li class="active">
                             <% } else { %>
                                 <li>
                             <% } %>
-                            <a href="#">Moje mapy</a></li>
+                            <a href="/mapList">Seznam map</a></li>
 
-                            <% if (page == "new_map") { %>
+                            <% if (page == "mapDesign") { %>
                                 <li class="active">
                             <% } else { %>
                                 <li>
                             <% } %>
-                            <li><a href="/maps/new">Vytvořit mapu</a></li>
-                            <li><a href="#contact">Contact</a></li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Action</a></li>
-                                    <li><a href="#">Another action</a></li>
-                                    <li><a href="#">Something else here</a></li>
-                                    <li class="divider"></li>
-                                    <li class="nav-header">Nav header</li>
-                                    <li><a href="#">Separated link</a></li>
-                                    <li><a href="#">One more separated link</a></li>
-                                </ul>
-                            </li>
+                            <li><a href="/maps/design">Vytvořit mapu</a></li>
                         </ul>
                         <% if (!user) { %>
                             <form class="navbar-form pull-right" action="/login" method="post">

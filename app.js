@@ -35,17 +35,20 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+
 app.post('/login', user.login);
 app.get('/logout', user.logout);
 
 app.get('/register', user.get_register);
 app.post('/register', user.post_register);
 
-app.get('/map/fill', maps.fill_map);
-app.post('/map/addShapes', maps.add_shapes);
 
-app.get('/maps/new', maps.get_new_map);
-app.post('/maps/new', maps.post_new_map);
+app.get('/maps', maps.list);
+app.get('/maps/:mapId/show', maps.show);
+app.get('/maps/:mapId/fill', maps.fill);
+app.post('/maps/save', maps.save);
+app.get('/maps/design', maps.design);
+app.post('/maps/create', maps.create);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
