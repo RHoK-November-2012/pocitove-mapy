@@ -46,6 +46,12 @@ button .sel
   background-color: black;
   color: white;
 }
+
+#jsonView
+{
+  width: 100%;
+  height: 400px;
+}
 </style>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>\
 <script type="text/javascript" src="jquery.min.js"></script>
@@ -57,6 +63,8 @@ button .sel
     <button id="pointSelect" class="sel">Misto</button>
     <button id="polylineSelect">Klikata cara</button>
     <button id="polygonSelect">Oblast</button>
+    <br>
+    <textarea id="jsonView"></textarea>
   </div>
 
   <div id="map"></div>
