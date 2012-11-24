@@ -202,6 +202,27 @@ function addMarker(location) {
       actualPolyline.polyline.setPath(actualPolyline.path);
     }
   }
+  else if (selectionMode === POLYGONS)
+  {
+    if (actualPolygon == undefined)
+    {
+      polygon = new google.maps.Polygon({
+        path: [[location]],
+        strokeColor: "red",
+        map: map
+      });
+      selected.polygons.push({
+        path: [location],
+        polygon: polygon
+      });
+      actualPolygon = selected.polygons[selected.polygons.length-1];
+    }
+    else
+    {
+      actualPolygon.path.push(location);
+      actualPolygon.polygon.setPath([actualPolygon.path]);
+    }
+  }
 }
 
 $(document).ready(function () {
