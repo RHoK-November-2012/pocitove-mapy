@@ -223,6 +223,44 @@ function addMarker(location) {
       actualPolygon.polygon.setPath([actualPolygon.path]);
     }
   }
+
+  updateJsonView();
+}
+
+function updateJsonView() {
+  $("#jsonView").text(JSON.stringify(exportJson()));
+}
+
+function exportJson() {
+  var expo = new Object();
+  var whats = ["points", "polylines", "polygons"];
+  for (what in whats)
+  {
+    what = whats[what];
+    expo[what] = [];
+    for (aThing in selected[what])
+    {
+      aThing = selected[what][aThing];
+      if (what === "points")
+      {
+        expo[what].push({
+          lat: aThing.location.lat(),
+          lng: aThing.location.lng()
+        });
+      }
+      else
+      {
+        expo[what].push(aThing.path.map(function (o) {
+          return {
+            lat: o.lat(),
+            lng: o.lng()
+          }
+        }));
+      }
+    }
+  }
+  console.log(expo);
+  return expo;
 }
 
 $(document).ready(function () {
