@@ -76,3 +76,11 @@ button .sel
 span.help-inline {
     vertical-align: top !important;
 }
+
+.dateInfo {
+    text-align: right;
+}
+
+.mapPreview {
+    width: 100%;
+}

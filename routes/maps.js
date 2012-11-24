@@ -1,7 +1,8 @@
-maps = require("mongoskin").db('localhost:27017/pomapy').collection('maps');
+maps = require("mongoskin").db('localhost:27017/pomapy', {safe: true}).collection('maps');
+settings = require("../modules/settings");
 
 // /maps
-exports.show = function(req, res) {
+exports.list = function(req, res) {
 	maps.find().toArray(function(err, maps) {
 		res.render('mapList', {
 			title: 'Atlas map',
@@ -14,7 +15,7 @@ exports.show = function(req, res) {
 
 // /maps/:mapId
 exports.show = function(req, res) {
-	maps.findOne({ "_id": req.param("mapId") }, function (map) {
+	maps.findById(req.param("mapId"), function (map) {
 		res.render('mapShow', {
 			title: 'Prohlížení mapy',
 			page: 'mapShow',
@@ -26,7 +27,7 @@ exports.show = function(req, res) {
 
 // /maps/:mapId/fill
 exports.fill = function(req, res) {
-	maps.findOne({ "_id": req.param("mapId") }, function (map) {
+	maps.findById(req.param("mapId"), function (map) {
 		res.render('mapFill', {
 			title: 'Vyplňování mapy',
         	page: 'mapFill',
@@ -52,7 +53,7 @@ exports.design = function(req, res){
 
 // /maps/:mapId/edit
 exports.edit = function(req, res) {
-	maps.findOne({ "_id": req.param("mapId") }, function (map) {
+	maps.findById(req.param("mapId"), function (map) {
 		res.render('mapDesign', {
 			title: 'Úprava existující mapy',
 			page: 'mapDesign',
@@ -96,6 +97,8 @@ exports.create = function(req, res) {
         end: new Date(req.body.end),
         latlon: latlon,
         zoom: req.body.zoom
-    }
-    res.send(map);
+    };
+    maps.insert(map, function() {
+    	res.redirect(settings.BASE_URI + "/maps");	
+    });
 }

@@ -1,0 +1,22 @@
+<% include header.ejs %>
+
+<h1><%= title %></h1>
+
+<% for (var i=0; i<model.length; i++) { map = model[i]; %>
+
+<div class="row">
+	<div class="span3">
+    	<img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= map.latlon %>&amp;zoom=<%= map.zoom %>&amp;size=600x400&amp;key=AIzaSyBmIHT_b4PoGIXOztnFkbU6KDgPIdeFqwE&amp;sensor=false" class="mapPreview">
+	</div>
+
+	<div class="span9">
+		<h2><a href="/maps/<%= map._id %>/show"><%= map.title %></a></h2>
+		<p><%= map.comment %></p>
+		<% start = new Date(map.start); end = new Date(map.end); %>
+		<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth() %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth() %>. <%= end.getFullYear() %></p>
+	</div>
+</div>
+
+<% }; %>
+
+<% include footer.ejs %>
