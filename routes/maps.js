@@ -8,14 +8,53 @@ exports.fill_map = function(req, res){
     });
 }
 
+// Later, we will get this ID from Mongo:
+var theTableId = "1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA"
+
 exports.add_shapes = function(req, res){
-	// "https://www.googleapis.com/fusiontables/v1/tables/1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA/columns"	
+	make_query("https://www.googleapis.com/fusiontables/v1/query",
+		"INSERT INTO '" + theTableId + "' (Submission) VALUES ('" + make_kml(req.body.submission) + "')",
+		function () {
+			res.write("ok.");
+			res.end();
+		})
+	// "https://www.googleapis.com/fusiontables/v1/tables/1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA/columns"
 };
 
-function make_query(url, callback, repeatedCall)
+function make_kml(inputJson)
+{
+	kml = "";
+	if (inputJson.points)
+	{
+		for (var i=0; i<inputJson.points.length; i++)
+		{
+			point = inputJson.points[i];
+			kml += "<Point><coordinates>" + point.lat + "," + point.lng + "</coordinates></Point>";
+		}
+	}
+	if (inputJson.polylines)
+	{
+		for (var i=0; i<inputJson.polylines.length; i++)
+		{
+			polyline = inputJson.polylines[i];
+			kml += "<Polygon><outerBoundaryIs><LinearRing><coordinates>" + polyline.map(function(o){ o.lat + "," + o.lng }).join(" ") + "</coordinates></LinearRing></outerBoundaryIs></Polygon>";
+		}
+	}
+	if (inputJson.polygons)
+	{
+		for (var i=0; i<inputJson.polygons.length; i++)
+		{
+			polygon = inputJson.polygons[i];
+			kml += "<MultiGeometry><LineString><coordinates>" + polygons.map(function(o){ o.lat + "," + o.lng}).join(" ") + "</coordinates></LineString></MultiGeometry>";
+		}
+	}
+	return kml;
+}
+
+function make_query(url, post, callback, repeatedCall)
 {
 	shred = new Shred();
-	shred.get({
+	config = {
 		url: url,
 		headers: {
 			Accept: "application/json",
@@ -53,5 +92,14 @@ function make_query(url, callback, repeatedCall)
 				});
 			}
 		}
-	});
+	};
+	if (!post)
+	{
+		shred.get(config);
+	}
+	else
+	{
+		config.content = post;
+		shred.post(config);
+	}
 }

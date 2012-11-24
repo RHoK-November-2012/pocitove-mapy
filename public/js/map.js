@@ -291,7 +291,9 @@ $(document).ready(function () {
   });
 
   $("#save").click(function() {
-    console.log("tu");
-    $.post("/map/addShapes", exportJson());
+    $.post("/map/addShapes",
+      {
+        "submission": exportJson()
+      });
   });
 });
