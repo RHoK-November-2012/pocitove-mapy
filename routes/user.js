@@ -35,6 +35,7 @@ exports.post_register = function(req, res) {
                 password: hash,
             }, function (err, result) {
                 // TODO(davidmarek): Dodelat kontrolu chyb.
+                req.session['user'] = email
                 res.redirect('/');
             });
         }
