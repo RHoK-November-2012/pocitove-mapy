@@ -56,11 +56,15 @@
                                 </ul>
                             </li>
                         </ul>
-                        <form class="navbar-form pull-right">
-                            <input class="span2" type="text" placeholder="Email">
-                            <input class="span2" type="password" placeholder="Password">
-                            <button type="submit" class="btn">Sign in</button>
-                        </form>
+                        <% if (!user) { %>
+                            <form class="navbar-form pull-right">
+                                <input class="span2" type="text" placeholder="Email">
+                                <input class="span2" type="password" placeholder="Password">
+                                <button type="submit" class="btn">Sign in</button>
+                            </form>
+                        <% } else { %>
+                            <span><%= user %>
+                        <% } %>
                     </div><!--/.nav-collapse -->
                 </div>
             </div>
