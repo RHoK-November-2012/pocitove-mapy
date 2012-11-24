@@ -166,6 +166,8 @@ var POINTS = 0,
     POLYLINES = 1,
     POLYGONS = 2;
 var selectionMode = POINTS;
+var actualPolyline = undefined;
+var actualPolygon = undefined;
 
 function addMarker(location) {
   if (selectionMode === POINTS)
@@ -181,9 +183,24 @@ function addMarker(location) {
   }
   else if (selectionMode === POLYLINES)
   {
-    polyline = new google.maps.Polyline({
-
-    });
+    if (actualPolyline == undefined)
+    {
+      polyline = new google.maps.Polyline({
+        path: [ location ],
+        strokeColor: "blue",
+        map: map
+      });
+      selected.polylines.push({
+        path: [ location ],
+        polyline: polyline
+      });
+      actualPolyline = selected.polylines[selected.polylines.length-1];
+    }
+    else
+    {
+      actualPolyline.path.push(location);
+      actualPolyline.polyline.setPath(actualPolyline.path);
+    }
   }
 }
 
@@ -193,16 +210,25 @@ $(document).ready(function () {
   $("#pointSelect").addClass("sel");
   $("#pointSelect").click(function() {
     selectionMode = POINTS;
+    actualPolyline = undefined;
+    actualPolygon = undefined;
+
     $("button").removeClass("sel");
     $("#pointSelect").addClass("sel");
   });
   $("#polylineSelect").click(function() {
     selectionMode = POLYLINES;
+    actualPolyline = undefined;
+    actualPolygon = undefined;
+    
     $("button").removeClass("sel");
     $("#polylineSelect").addClass("sel");
   });
   $("#polygonSelect").click(function() {
     selectionMode = POLYGONS;
+    actualPolyline = undefined;
+    actualPolygon = undefined;
+    
     $("button").removeClass("sel");
     $("#polygonSelect").addClass("sel");
   });
