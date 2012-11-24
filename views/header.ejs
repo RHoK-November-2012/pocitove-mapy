@@ -57,13 +57,18 @@
                             </li>
                         </ul>
                         <% if (!user) { %>
-                            <form class="navbar-form pull-right">
-                                <input class="span2" type="text" placeholder="Email">
-                                <input class="span2" type="password" placeholder="Password">
-                                <button type="submit" class="btn">Sign in</button>
+                            <form class="navbar-form pull-right" action="/login" method="post">
+                                <input class="span2" name="email" type="text" placeholder="Email">
+                                <input class="span2" name="password" type="password" placeholder="Heslo">
+                                <input type="submit" value="Přihlásit" class="btn"/>
                             </form>
                         <% } else { %>
-                            <span><%= user %>
+                            <div class="nav-collapse pull-right collapse">
+                                <ul class="nav">
+                                    <li><a href="#"><%= user %></a></li>
+                                    <li><a href="/logout">(Odhlásit)</a></li>
+                                </ul>
+                            </div>
                         <% } %>
                     </div><!--/.nav-collapse -->
                 </div>

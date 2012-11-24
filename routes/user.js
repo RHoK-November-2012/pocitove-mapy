@@ -11,6 +11,31 @@ exports.list = function(req, res) {
     res.send("respond with a resource");
 };
 
+exports.login = function(req, res) {
+    email = req.body.email.toLowerCase();
+    password = req.body.password;
+
+    hash = hash_password(email, password);
+    users.findOne({email: email, password: hash}, function (err, user) {
+        if (err) {
+            // TODO(davidmarek): Dodelat kontrolu chyb.
+        }
+
+        if (user) {
+            req.session['user'] = email;
+            res.redirect('/');
+        } else {
+            // TODO(davidmarek): Dodelat ukazani chyb.
+            res.redirect('back');
+        }
+    });
+}
+
+exports.logout = function(req, res) {
+    req.session.destroy();
+    res.redirect('back');
+}
+
 exports.get_register = function(req, res) {
     res.render("register", { title: "Registrace" })
 };

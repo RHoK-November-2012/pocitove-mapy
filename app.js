@@ -35,6 +35,9 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+app.post('/login', user.login);
+app.get('/logout', user.logout);
+
 app.get('/register', user.get_register);
 app.post('/register', user.post_register);
 
