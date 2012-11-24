@@ -1,9 +1,6 @@
 var Shred = require("shred");
 var settings = require("../settings")
 
-var refreshToken = "1/vnMrepdzMQre0DrplS4GKGR9O26ms7vWDbNNohCXR10",
-    accessToken = "ya29.AHES6ZQIWkoRNE2XB0c-IM6diPECREqyjp5LmyWXoVhL-A2jzgpyMA";
-
 exports.fill_map = function(req, res){
 	res.render('mapFill', { title: 'mapFill',
         page: "mapFill",
@@ -12,18 +9,28 @@ exports.fill_map = function(req, res){
 }
 
 exports.add_shapes = function(req, res){
+	// "https://www.googleapis.com/fusiontables/v1/tables/1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA/columns"	
+};
+
+function make_query(url, callback, repeatedCall)
+{
 	shred = new Shred();
 	shred.get({
-		url: "https://www.googleapis.com/fusiontables/v1/tables/1oCQQe8yjW0_lKazb-j1jBmrA5hun09aubNjxVrA/columns",
+		url: url,
 		headers: {
 			Accept: "application/json",
 			"Authorization": "OAuth " + settings.ACCESS
 		},
 		on: {
-			200: function (columns) {
-				console.log(columns.content.data);
+			200: function (response) {
+				callback(response.content.data);
 			},
 			response: function (response) {
+				if (repeatedCall)
+				{
+					console.log("I've got a new token, but I still cannot authenticate.");
+					return;
+				}
 				console.log("I guess I have to refresh my token. What a drag.");
 
 				shred.post({
@@ -37,15 +44,14 @@ exports.add_shapes = function(req, res){
 					on: {
 						200: function (token) {
 							settings.ACCESS = token.content.data;
-							exports.add_shapes(req, res);
+							make_query(url, callback, true);
 						},
 						response: function(response) {
-							console.log("Oh, fuck.");
+							console.log("I have not been able to obtain new token. Giving up.");
 						}
 					}
 				});
 			}
 		}
 	});
-};
-
+}
