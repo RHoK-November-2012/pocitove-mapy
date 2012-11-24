@@ -259,36 +259,44 @@ function exportJson() {
       }
     }
   }
-  console.log(expo);
   return expo;
 }
 
 $(document).ready(function () {
   initialize();
 
-  $("#pointSelect").addClass("sel");
   $("#pointSelect").click(function() {
     selectionMode = POINTS;
     actualPolyline = undefined;
     actualPolygon = undefined;
 
-    $("button").removeClass("sel");
-    $("#pointSelect").addClass("sel");
+    $("button").removeClass("sel").addClass("unsel");;
+    $("#pointSelect").addClass("sel").removeClass("unsel");
   });
   $("#polylineSelect").click(function() {
     selectionMode = POLYLINES;
     actualPolyline = undefined;
     actualPolygon = undefined;
     
-    $("button").removeClass("sel");
-    $("#polylineSelect").addClass("sel");
+    $("button").removeClass("sel").addClass("unsel");;
+    $("#polylineSelect").addClass("sel").removeClass("unsel");
   });
   $("#polygonSelect").click(function() {
     selectionMode = POLYGONS;
     actualPolyline = undefined;
     actualPolygon = undefined;
     
-    $("button").removeClass("sel");
-    $("#polygonSelect").addClass("sel");
+    $("button").removeClass("sel").addClass("unsel");
+    $("#polygonSelect").addClass("sel").removeClass("unsel");
+  });
+
+  $("#save").click(function() {
+    $.post({
+      url: "/map/addShapes",
+      data: exportJson(),
+      success: function (whatever) {
+        console.log(whatever);
+      }
+    });
   });
 });
