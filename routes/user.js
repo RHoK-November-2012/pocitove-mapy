@@ -12,10 +12,10 @@ exports.list = function(req, res) {
 };
 
 exports.login = function(req, res) {
-    email = req.body.email.toLowerCase();
-    password = req.body.password;
+    var email = req.body.email.toLowerCase();
+    var password = req.body.password;
 
-    hash = hash_password(email, password);
+    var hash = hash_password(email, password);
     users.findOne({email: email, password: hash}, function (err, user) {
         if (err) {
             // TODO(davidmarek): Dodelat kontrolu chyb.
@@ -44,8 +44,8 @@ exports.get_register = function(req, res) {
 };
 
 exports.post_register = function(req, res) {
-    email = req.body.email.toLowerCase();
-    password = req.body.password;
+    var email = req.body.email.toLowerCase();
+    var password = req.body.password;
 
     users.findOne({email: email}, function (err, user) {
         if (err) {
@@ -56,7 +56,7 @@ exports.post_register = function(req, res) {
             // TODO(davidmarek): Dodelat ukazani chyb.
             res.redirect('back');
         } else {
-            hash = hash_password(email, password);
+            var hash = hash_password(email, password);
 
             users.insert({
                 email: email,
@@ -71,7 +71,7 @@ exports.post_register = function(req, res) {
 }
 
 function hash_password(salt, password) {
-    shasum = crypto.createHash('sha1');
+    var shasum = crypto.createHash('sha1');
     shasum.update(salt);
     shasum.update(password);
     return shasum.digest('hex');
