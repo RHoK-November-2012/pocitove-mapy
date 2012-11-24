@@ -37,11 +37,22 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <a class="brand" href="#">Pocitové mapy</a>
+                    <a class="brand" href="/">Pocitové mapy</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#about">About</a></li>
+                            <% if (page == "list_maps") { %>
+                                <li class="active">
+                            <% } else { %>
+                                <li>
+                            <% } %>
+                            <a href="#">Moje mapy</a></li>
+
+                            <% if (page == "new_map") { %>
+                                <li class="active">
+                            <% } else { %>
+                                <li>
+                            <% } %>
+                            <li><a href="/maps/new">Vytvořit mapu</a></li>
                             <li><a href="#contact">Contact</a></li>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
