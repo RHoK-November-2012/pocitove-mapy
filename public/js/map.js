@@ -270,7 +270,7 @@ $(document).ready(function () {
     actualPolyline = undefined;
     actualPolygon = undefined;
 
-    $("button").removeClass("sel").addClass("unsel");;
+    $(".sel").removeClass("sel").addClass("unsel");
     $("#pointSelect").addClass("sel").removeClass("unsel");
   });
   $("#polylineSelect").click(function() {
@@ -278,7 +278,7 @@ $(document).ready(function () {
     actualPolyline = undefined;
     actualPolygon = undefined;
     
-    $("button").removeClass("sel").addClass("unsel");;
+    $(".sel").removeClass("sel").addClass("unsel");
     $("#polylineSelect").addClass("sel").removeClass("unsel");
   });
   $("#polygonSelect").click(function() {
@@ -286,17 +286,12 @@ $(document).ready(function () {
     actualPolyline = undefined;
     actualPolygon = undefined;
     
-    $("button").removeClass("sel").addClass("unsel");
+    $(".sel").removeClass("sel").addClass("unsel");
     $("#polygonSelect").addClass("sel").removeClass("unsel");
   });
 
   $("#save").click(function() {
-    $.post({
-      url: "/map/addShapes",
-      data: exportJson(),
-      success: function (whatever) {
-        console.log(whatever);
-      }
-    });
+    console.log("tu");
+    $.post("/map/addShapes", exportJson());
   });
 });
