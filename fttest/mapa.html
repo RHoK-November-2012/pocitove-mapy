@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Pocitové Mapy</title>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript">
+  var map;
+  var markersArray = [];
+
+//49.146991,14.174337&spn=0.017236,0.038581&t=m&z=15
+  function initialize() {
+    var myOptions = {
+      zoom: 15,
+      center: new google.maps.LatLng(49.146991, 14.174336),
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: false,
+      streetViewControl: false,
+      styles: [
+        {
+          featureType: "landscape.natural",
+          stylers: [
+            { color: "#ffffff" }
+          ]
+        },{
+          featureType: "administrative",
+          elementType: "geometry",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "administrative",
+          elementType: "labels.text",
+          stylers: [
+            { visibility: "off" },
+          ]
+        },{
+          featureType: "administrative.country",
+          elementType: "geometry",
+          stylers: [
+            { weight: 1 },
+            { visibility: "on" },
+            { color: "#010100" }
+          ]
+        },{
+          featureType: "road",
+          elementType: "geometry.stroke",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "road",
+          elementType: "geometry.fill",
+          stylers: [
+            { weight: 0.7 },
+            { color: "#006464" }
+          ]
+        },{
+          featureType: "road",
+          elementType: "labels.icon",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          elementType: "labels.text",
+          stylers: [
+            { visibility: "off" },
+            { color: "#ffffff" }
+          ]
+        },{
+          featureType: "landscape",
+          elementType: "labels.text",
+          stylers: [
+            { visibility: "off" },
+            { color: "#007575" }
+          ]
+        },{
+          featureType: "poi",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "administrative.land_parcel",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "poi.park",
+          stylers: [
+            { visibility: "on" }
+          ]
+        },{
+          featureType: "poi.park",
+          elementType: "labels.icon",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "transit",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [
+            { color: "#007575" }
+          ]
+        },{
+          featureType: "poi.park",
+          elementType: "geometry.fill",
+          stylers: [
+            { color: "#eeeeee" }
+          ]
+        },{
+          featureType: "road",
+          elementType: "geometry.stroke",
+          stylers: [
+            { visibility: "off" },
+            { color: "#ffffff" },
+            { weight: 3 }
+          ]
+        },{
+          featureType: "road",
+          elementType: "labels.text",
+          stylers: [
+            { visibility: "off" },
+            { color: "#ffffff" },
+            { weight: 3 }
+          ]
+        },{
+          featureType: "transit",
+          stylers: [
+            { weight: 0.5 },
+            { color: "#007575" }
+          ]
+        },{
+          featureType: "road",
+          elementType: "labels.icon",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },{
+          featureType: "road.highway",
+          elementType: "geometry.fill",
+          stylers: [
+            { weight: 2 }
+          ]
+        },{
+          featureType: "road.arterial",
+          elementType: "geometry.fill",
+          stylers: [
+            { weight: 1.3 }
+          ]
+        }
+      ]
+    };
+    map = new google.maps.Map(document.getElementById("map"), myOptions);
+
+    google.maps.event.addListener(map, 'click', function(event) {
+      addMarker(event.latLng);
+    });
+
+    odoslat  = document.getElementById('odoslat');
+  }
+
+var odoslat
+
+function addMarker(location) {
+  marker = new google.maps.Marker({
+    position: location,
+    map: map
+  });
+  markersArray.push(marker);
+
+  var  markers = 'suradnice='
+  markersArray.forEach(function(f) {markers = markers + f.getPosition().lat() + ' ' + f.getPosition().lng() + '|';})
+  markers = markers.substring(0, markers.length - 1)
+  odoslat.href = 'https://script.google.com/macros/s/AKfycby7BThHhw_K72Mspn5YQzV7Gg9kcQyPsXQjupIg6eiBKyyIB0Bl/exec?' + markers
+  //odoslat.href = 'https://script.google.com/macros/s/AKfycbzFuDgTwcINOtbNn4za3OrJT1iPaJY801Jh8Z6vac_C/dev?' + markers
+}
+
+// Removes the overlays from the map, but keeps them in the array
+function clearOverlays() {
+  if (markersArray) {
+    for (i in markersArray) {
+      markersArray[i].setMap(null);
+    }
+  }
+}
+
+// Shows any overlays currently in the array
+function showOverlays() {
+  if (markersArray) {
+    for (i in markersArray) {
+      markersArray[i].setMap(map);
+    }
+  }
+}
+
+// Deletes all markers in the array by removing references to them
+function deleteOverlays() {
+  if (markersArray) {
+    for (i in markersArray) {
+      markersArray[i].setMap(null);
+    }
+    markersArray.length = 0;
+  }
+}
+</script>
+<style>
+body {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+}
+#map {
+  width: 800px;
+  height: 600px;
+  /*position: absolute;*/
+  background-color: white;
+  border: 1px solid black;
+}
+</style>
+</head>
+<body onload="initialize()">
+  <div id="map"></div>
+  <br>
+  <center><a href="odoslat" id="odoslat">Odeslat</a></center>
+  <br><br>
+  <center><a href="vysledek.html" >Výsledek</a></center>
+</body>
+</html>
+
