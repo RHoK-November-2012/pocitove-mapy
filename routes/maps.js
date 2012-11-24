@@ -115,3 +115,8 @@ exports.get_new_map = function(req, res) {
         res.redirect('/login');
     }
 }
+
+exports.post_new_map = function(req, res) {
+    console.log(req.body);
+    res.send(req.body);
+}

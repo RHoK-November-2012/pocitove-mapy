@@ -8,7 +8,7 @@
 </div>
 <div class="row">
     <div class="span8 offset2">
-        <form class="form-horizontal" action="/maps/new" method="post">
+        <form class="form-horizontal" id="new_map_form" action="/maps/new" method="post">
             <div class="control-group">
                 <label class="control-label" for="inputTitle">Název pocitové mapy:</label>
                 <div class="controls">
@@ -79,6 +79,9 @@
                 </div>
             </div>
 
+            <input type="hidden" name="latlon" id="latlon"></input>
+            <input type="hidden" name="zoom" id="zoom"></input>
+
             <div class="control-group">
                 <div class="controls">
                     <input type="submit" value="Vytvořit" class="btn"/>
@@ -88,10 +91,43 @@
     </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-
 <script>
-    var map;
+var i = 0;
+var j = 0;
+var map;
+
+function new_feeling_item(i, color, feeling) {
+    return '<li class="feeling_item"><div class="input-prepend input-append"> \
+    <input type="color" class="colorPicker btn" name="color[' + i + ']" value="'+ color +'"/> \
+    <input class="span3" name="feeling[' + i +']" type="text" placeholder="Na tomto místě..." value="' + feeling + '"> \
+    <button class="btn remove_feeling" type="button"><i class="icon-remove"/></button> \
+    </div></li>';
+}
+
+function new_criterion_item(i, question, radio_text, list) {
+    var checked_text = "";
+    var checked_select = "";
+    var select_visibility = 'style="display: none"';
+    if (radio_text) {
+        checked_text = 'checked="true"';
+    } else {
+        checked_select = 'checked="true"';
+        select_visibility = "";
+    }
+
+    var criterion_item = '<li class="criterion_item"> \
+        <label class="input-append"><input type="text" name="criterion[' + i + ']" class="span5" placeholder="Otázka na uživatele." value="' + question + '"/><button class="btn remove_criterion" type="button"><i class="icon-remove"></i></button></label> \
+        <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + i +']" value="text" '+ checked_text +'>Uživatel musí vyplnit text</input></label> \
+        <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + i + ']" value="select" '+ checked_select + '>Uživatel vybírá z daných možností</input></label> \
+        <div class="select_list" ' + select_visibility + '> \
+            <hr><textarea rows="10" class="span3" name="criterion_values[' + i + ']">' + list + '</textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
+        </div> \
+    </li>';
+
+    return criterion_item;
+}
+
+$(document).ready(function() {
     function initialize() {
         var mapOptions = {
             zoom: 7,
@@ -101,55 +137,28 @@
         map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
     }
 
-    google.maps.event.addDomListener(window, 'load', initialize);
-</script>
+    initialize();
 
-<script>
-var i = 0;
-var j = 0;
+    google.maps.event.addListener(map, 'center_changed', function () {
+        $("#latlon").val(map.getCenter().toString());
+    });
 
-var feeling_item = '<li class="feeling_item"><div class="input-prepend input-append"> \
-    <input type="color" class="colorPicker btn" name="color[' + i + ']"/> \
-    <input class="span3" name="feeling[' + i +']" type="text" placeholder="Na tomto místě..."> \
-    <button class="btn remove_feeling" type="button"><i class="icon-remove"/></button> \
-</div></li>';
+    google.maps.event.addListener(map, 'zoom_changed', function () {
+        $("#zoom").val(map.getZoom());
+    });
 
-var criterion_item = '<li class="criterion_item"> \
-    <label class="input-append"><input type="text" name="criterion[' + j + ']" class="span5" placeholder="Otázka na uživatele."/><button class="btn remove_criterion" type="button"><i class="icon-remove"></i></button></label> \
-    <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + j +']" value="text" checked="true">Uživatel musí vyplnit text</input></label> \
-    <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + j + ']" value="select">Uživatel vybírá z daných možností</input></label> \
-    <div class="select_list" style="display: none"> \
-        <hr><textarea rows="10" class="span3" name="criterion_values[' + j + ']"></textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
-    </div> \
-</li>';
-
-$(document).ready(function() {
-    $("#feeling_prepend").prepend(feeling_item);
-    $("#criterion_prepend").prepend(criterion_item);
+    $("#feeling_prepend").prepend(new_feeling_item(i, "", ""));
+    $("#criterion_prepend").prepend(new_criterion_item(j, "", true, ""));
     i++;
     j++;
 
     $("#add_new_feeling_button").click(function () {
-        $("#feeling_prepend").append(
-            '<li class="feeling_item"><div class="input-prepend input-append"> \
-                        <input type="color" class="colorPicker btn" name="color[' + i + ']"/> \
-                        <input class="span3" name="feeling[' + i +']" type="text"> \
-                        <button class="btn remove_feeling" type="button"><i class="icon-remove"/></button> \
-                    </div></li>');
+        $("#feeling_prepend").append(new_feeling_item(i, "#000000", ""));
         i++;
     });
 
     $("#add_new_criterion_button").click(function () {
-        $("#criterion_prepend").append(
-            '<li class="criterion_item"> \
-                <label class="input-append"><input type="text" name="criterion[' + j + ']" class="span5" placeholder="Otázka na uživatele."/><button class="btn remove_criterion" type="button"><i class="icon-remove"></i></button></label> \
-                <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + j +']" value="text" checked="true">Uživatel musí vyplnit text</input></label> \
-                <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + j + ']" value="select">Uživatel vybírá z daných možností</input></label> \
-                <div class="select_list" style="display: none"> \
-                    <hr><textarea rows="10" class="span3" name="criterion_values[' + j + ']"></textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
-                </div> \
-            </li>'
-        );
+        $("#criterion_prepend").append(new_criterion_item(j, "", true, ""));
         j++;
     })
 
