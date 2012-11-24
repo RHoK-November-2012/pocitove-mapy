@@ -43,7 +43,8 @@ app.post('/register', user.post_register);
 
 app.get('/map/fill', maps.fill_map);
 app.post('/map/addShapes', maps.add_shapes);
-app.post('/maps/new', maps.new_map);
+
+app.get('/maps/new', maps.get_new_map);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

@@ -1,0 +1,174 @@
+<% include header.ejs %>
+
+<div class="row">
+    <div class="span8 offset2">
+        <h2>Vytvořit novou pocitovou mapu</h2>
+        <hr>
+    </div>
+</div>
+<div class="row">
+    <div class="span8 offset2">
+        <form class="form-horizontal" action="/maps/new" method="post">
+            <div class="control-group">
+                <label class="control-label" for="inputTitle">Název pocitové mapy:</label>
+                <div class="controls">
+                    <input type="text" name="title" id="inputTitle" placeholder="Moje pocitová mapa"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputComment">Komentář:</label>
+                <div class="controls">
+                    <textarea class="span6" name="comment" id="inputComment" cols="60" rows="5">Poznámky k mé pocitové mapě.</textarea>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputMapSelect">Výběr mapového podkladu:</label>
+                <div class="controls">
+                    <div id="map_canvas" id="inputMapSelect" class="span6 select_map"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputFeelings">Pocity:</label>
+                <div class="controls">
+                    <ul class="nav feeling_items">
+                        <div id="feeling_prepend"></div>
+                    </ul>
+                    <div class="row">
+                        <div class="span3">
+                            <button type="button" class="btn btn-mini pull-right" id="add_new_feeling_button">Přidat další pocit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputPublic">Mapa je veřejná:</label>
+                <div class="controls">
+                    <input type="checkbox" id="inputPublic" name="public" checked="true"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputCriteria">Anketní otázky:</label>
+                <div class="controls">
+                    <ul class="nav">
+                        <div id="criterion_prepend"></div>
+                    <div class="row">
+                        <div class="span3">
+                            <button type="button" class="btn btn-mini pull-right" id="add_new_criterion_button">Přidat další otázku</button>
+                        </div>
+                    </div>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputDateFrom">Datum začátku:</label>
+                <div class="controls">
+                    <input type="date" name="start"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputDateFrom">Datum konce:</label>
+                <div class="controls">
+                    <input type="date" name="end"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="controls">
+                    <input type="submit" value="Vytvořit" class="btn"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+
+<script>
+    var map;
+    function initialize() {
+        var mapOptions = {
+            zoom: 7,
+            center: new google.maps.LatLng(49.82380908513248, 15.399462890625),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+<script>
+var i = 0;
+var j = 0;
+
+var feeling_item = '<li class="feeling_item"><div class="input-prepend input-append"> \
+    <input type="color" class="colorPicker btn" name="color[' + i + ']"/> \
+    <input class="span3" name="feeling[' + i +']" type="text" placeholder="Na tomto místě..."> \
+    <button class="btn remove_feeling" type="button"><i class="icon-remove"/></button> \
+</div></li>';
+
+var criterion_item = '<li class="criterion_item"> \
+    <label class="input-append"><input type="text" name="criterion[' + j + ']" class="span5" placeholder="Otázka na uživatele."/><button class="btn remove_criterion" type="button"><i class="icon-remove"></i></button></label> \
+    <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + j +']" value="text" checked="true">Uživatel musí vyplnit text</input></label> \
+    <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + j + ']" value="select">Uživatel vybírá z daných možností</input></label> \
+    <div class="select_list" style="display: none"> \
+        <hr><textarea rows="10" class="span3" name="criterion_values[' + j + ']"></textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
+    </div> \
+</li>';
+
+$(document).ready(function() {
+    $("#feeling_prepend").prepend(feeling_item);
+    $("#criterion_prepend").prepend(criterion_item);
+    i++;
+    j++;
+
+    $("#add_new_feeling_button").click(function () {
+        $("#feeling_prepend").append(
+            '<li class="feeling_item"><div class="input-prepend input-append"> \
+                        <input type="color" class="colorPicker btn" name="color[' + i + ']"/> \
+                        <input class="span3" name="feeling[' + i +']" type="text"> \
+                        <button class="btn remove_feeling" type="button"><i class="icon-remove"/></button> \
+                    </div></li>');
+        i++;
+    });
+
+    $("#add_new_criterion_button").click(function () {
+        $("#criterion_prepend").append(
+            '<li class="criterion_item"> \
+                <label class="input-append"><input type="text" name="criterion[' + j + ']" class="span5" placeholder="Otázka na uživatele."/><button class="btn remove_criterion" type="button"><i class="icon-remove"></i></button></label> \
+                <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + j +']" value="text" checked="true">Uživatel musí vyplnit text</input></label> \
+                <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + j + ']" value="select">Uživatel vybírá z daných možností</input></label> \
+                <div class="select_list" style="display: none"> \
+                    <hr><textarea rows="10" class="span3" name="criterion_values[' + j + ']"></textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
+                </div> \
+            </li>'
+        );
+        j++;
+    })
+
+    $(".remove_feeling").live('click', function () {
+        $(this).parents(".feeling_item").remove();
+    });
+
+    $(".remove_criterion").live('click', function () {
+        $(this).parents(".criterion_item").remove();
+    });
+
+    $(".radio_select").live('click', function () {
+        $(this).parents(".criterion_item").find(".select_list").show();
+    });
+
+    $(".nonradio_select").live('click', function () {
+        $(this).parents(".criterion_item").find(".select_list").hide();
+    });
+})
+</script>
+
+<% include footer.ejs %>

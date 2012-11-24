@@ -44,3 +44,35 @@ button .sel
   width: 100%;
   height: 400px;
 }
+
+.select_map {
+    height: 400px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.colorPicker {
+    width: 20px;
+}
+
+.feeling_item {
+    padding-bottom: 10px;
+}
+
+.feeling_items {
+    margin-bottom: 0;
+}
+
+.criterion_item {
+    position: relative;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+span.help-inline {
+    vertical-align: top !important;
+}

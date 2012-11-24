@@ -23,3 +23,15 @@ exports.add_shapes = function(req, res){
 		}
 	});
 };
+
+exports.get_new_map = function(req, res) {
+    if (req.session['user']) {
+        res.render('new_map', { title: "Vytvoření nové mapy",
+            page: "new_map",
+            user: req.session['user']
+        });
+    } else {
+        // TODO(davidmarek): Dodelat stranku pro login.
+        res.redirect('/login');
+    }
+}
