@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Pocitové mapy</title>
+<style>
+body {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 1030px;
+}
+
+#map {
+  position: absolute;
+  left: 0; top:0;
+  width: 800px;
+  height: 600px;
+  background-color: white;
+  border: 1px solid black;
+}
+
+#panel
+{
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px;
+  background-color: gray;
+}
+
+button
+{
+  background-color: white;
+  color: black;
+  display: block;
+  width: 90px;
+  height: 30px;
+  margin-top: 10px; margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button .sel
+{
+  background-color: black;
+  color: white;
+}
+
+#jsonView
+{
+  width: 100%;
+  height: 400px;
+}
+</style>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>\
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="map.js"></script>
+</head>
+
+<body>
+  <div id="panel">
+    <button id="pointSelect" class="sel">Misto</button>
+    <button id="polylineSelect">Klikata cara</button>
+    <button id="polygonSelect">Oblast</button>
+    <br>
+    <textarea id="jsonView"></textarea>
+  </div>
+
+  <div id="map"></div>
+</body>
+</html>
+
