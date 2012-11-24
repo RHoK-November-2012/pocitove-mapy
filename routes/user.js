@@ -37,7 +37,10 @@ exports.logout = function(req, res) {
 }
 
 exports.get_register = function(req, res) {
-    res.render("register", { title: "Registrace" })
+    res.render("register", { title: "Registrace",
+        page: "register",
+        user: req.session['user']
+    });
 };
 
 exports.post_register = function(req, res) {
