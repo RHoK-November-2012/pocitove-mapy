@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -42,6 +41,7 @@ app.get('/logout', user.logout);
 app.get('/register', user.get_register);
 app.post('/register', user.post_register);
 
+app.get('/map/fill', maps.fill_map);
 app.post('/map/addShapes', maps.add_shapes);
 app.post('/maps/new', maps.new_map);
 
