@@ -7,12 +7,15 @@
 	</div>
 </div>
 <% } else { %>
-	<h1><%= model.title %></h1>
+	<div class="row">
+		<div class="span12">
+			<h1><%= model.title %></h1>
+			<hr>
+		</div>
+	</div>
 
 	<div class="row">
-		<div class="offset3 span6">
-	    	<img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= model.latlon %>&amp;zoom=<%= model.zoom %>&amp;size=600x400&amp;key=AIzaSyBmIHT_b4PoGIXOztnFkbU6KDgPIdeFqwE&amp;sensor=false" class="mapPreview">
-		</div>
+	    <div id="map_canvas" class="span12"></div>
 	</div>
 
 	<div class="row">
@@ -23,6 +26,44 @@
 			<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth() %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth() %>. <%= end.getFullYear() %></p>
 		</div>
 	</div>
-<% }; %>
+<% } %>
+
+<script>
+$(window).load(function() {
+var map;
+var mapOptions = {
+		zoom: <%=model.zoom%>,
+		center: new google.maps.LatLng(<%=model.latlon%>),
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+};
+map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+
+var points = [<%- points %>];
+
+for (var i = 0; i < points.length; i++) {
+	var marker = new google.maps.Marker({
+		position: new google.maps.LatLng(points[i]['lat'], points[i]['lng']),
+		map: map,
+		icon: {
+			path: google.maps.SymbolPath.CIRCLE,
+            scale: 5,
+            fillColor: points[i]['color'],
+            fillOpacity: 0.5,
+            strokeColor: points[i]['color'],
+            strokeWeight: 1,
+            clickable: true,
+		},
+		title: points[i]['text'],
+	});
+}
+});
+</script>
+
+<style>
+#map_canvas {
+	height: 500px;
+	padding-left: 0;
+}
+</style>
 
 <% include footer.ejs %>

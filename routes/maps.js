@@ -1,6 +1,7 @@
 settings = require('../modules/settings');
 db = require("mongoskin").db(settings.MONGO_URI, {safe: true});
 maps = db.collection('maps');
+fillIns = db.collection('fillIns');
 
 // /maps
 exports.list = function(req, res) {
@@ -16,15 +17,24 @@ exports.list = function(req, res) {
 
 // /maps/:mapId/show
 exports.show = function(req, res) {
-	maps.findById(req.params.mapId, function (err, map) {
-		res.render('mapShow', {
-			title: 'Prohlížení mapy',
-			page: 'mapShow',
-			user: req.session['user'],
-			mapId: req.params.mapId,
-			model: map
-		});
-	});
+    fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
+        var points = [];
+        for (var i = 0; i < fs.length; i++) {
+            for (var j = 0; j < fs[i]['shapes']['points'].length; j++) {
+                points.push(JSON.stringify(fs[i]['shapes']['points'][j]));
+            }
+        }
+        maps.findById(req.params.mapId, function (err, map) {
+            res.render('mapShow', {
+                title: 'Prohlížení mapy',
+                page: 'mapShow',
+                user: req.session['user'],
+                mapId: req.params.mapId,
+                model: map,
+                points: points
+            });
+        });
+    });
 };
 
 // /maps/:mapId/fill
