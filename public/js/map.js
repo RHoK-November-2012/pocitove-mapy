@@ -1,4 +1,5 @@
   var map;
+  var drawingManager;
   var markersArray = [];
 
   function initialize_map(latlng, zoom) {
@@ -41,7 +42,6 @@
         {
           for (var j=0; j<submit.shapes.points.length; j++){
             point = submit.shapes.points[j];
-            
           }
         }
       }
