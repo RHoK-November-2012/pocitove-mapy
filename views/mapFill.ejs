@@ -9,7 +9,7 @@
 <% } else { %>
 	<h1><%= model.title %></h1>
 	<div class="row">
-		<div class="feelings">
+		<div class="span8">
 			<% for (var i=0; i<model.feelings.length; i++) { feeling=model.feelings[i]; %>
 				<div class="btn" id="feeling<%=i%>">
 					<div style="background-color: <%= feeling.color %>; width: 1em; height: 0.8em; display: inline-block;"> </div>
@@ -28,14 +28,29 @@
 					$("#feeling0").click();
 				});
 			</script>
-		</div>
-		<button id="pointSelect" class="sel">Misto</button>
-	  	<button id="polylineSelect" class="unsel">Klikata cara</button>
-	  	<button id="polygonSelect" class="unsel">Oblast</button>
-		<div class="span8">
+
+			<button id="pointSelect" class="sel">Misto</button>
+		  	<button id="polylineSelect" class="unsel">Klikata cara</button>
+		  	<button id="polygonSelect" class="unsel">Oblast</button>
+
 			<div id="map"></div>
 		</div>
-		<div class="span4">
+
+		<div class="criteria span4">
+			<h2>Ještě pár drobností...</h2>
+
+			<% for (var i=0; i<model.criteria.length; i++) { criterion = model.criteria[i]; %>
+				<p><%= criterion.text %>
+				<% if (criterion.type === "text") { %>
+					<textarea name="criterion<%=i%>"></textarea>
+				<% } else { %>
+					<select name="criterion<%=i%>">
+						<% for (var j=0; j<criterion.options.length; j++) { %>
+						<option value="<%=j%>"><%=criterion.options[j]%></option>
+						<% } %>
+					</select>
+				<% }; %>
+			<% }; %>
 
 		  	<button id="save">Hotovo!</button>
 		</div>

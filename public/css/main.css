@@ -1,8 +1,6 @@
 #map {
-  position: absolute;
-  left: 40px; top:200px;
-  width: 800px;
-  height: 600px;
+  width: 600px;
+  height: 450px;
   background-color: white;
   border: 1px solid black;
 }
@@ -83,4 +81,10 @@ span.help-inline {
 
 .mapPreview {
     width: 100%;
+}
+
+.criteria textarea
+{
+  width: 100%;
+  height: 100px;
 }

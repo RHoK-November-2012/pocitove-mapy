@@ -195,6 +195,7 @@ function addMarker(location) {
     });
     selected.points.push({
       location: location,
+      feeling: actualFeeling.id,
       marker: marker
     });
   }
@@ -204,11 +205,12 @@ function addMarker(location) {
     {
       polyline = new google.maps.Polyline({
         path: [ location ],
-        strokeColor: "blue",
+        strokeColor: actualFeeling.color,
         map: map
       });
       selected.polylines.push({
         path: [ location ],
+        feeling: actualFeeling.id,
         polyline: polyline
       });
       actualPolyline = selected.polylines[selected.polylines.length-1];
@@ -225,11 +227,12 @@ function addMarker(location) {
     {
       polygon = new google.maps.Polygon({
         path: [[location]],
-        strokeColor: "red",
+        strokeColor: actualFeeling.color,
         map: map
       });
       selected.polygons.push({
         path: [location],
+        feeling: actualFeeling.id,
         polygon: polygon
       });
       actualPolygon = selected.polygons[selected.polygons.length-1];
