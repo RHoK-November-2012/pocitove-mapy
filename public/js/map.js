@@ -76,13 +76,23 @@ function addMarker(location) {
         new google.maps.Point(0, 0),
         new google.maps.Point(12, 35));
 
+
+      
+
     var marker = new google.maps.Marker({
       position: location,
       map: map,
-      icon: pinImage,
-      shadow: pinShadow,
       clickable: true,
-      draggable: true
+      draggable: true,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 5,
+        fillColor: points[i]['color'],
+        fillOpacity: 0.5,
+        strokeColor: points[i]['color'],
+        strokeWeight: 1,
+        clickable: true
+      }
     });
     var pointO = {
       location: location,

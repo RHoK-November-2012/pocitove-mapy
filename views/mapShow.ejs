@@ -34,7 +34,24 @@ var map;
 var mapOptions = {
 		zoom: <%=model.zoom%>,
 		center: new google.maps.LatLng(<%=model.latlon%>),
-		mapTypeId: google.maps.MapTypeId.ROADMAP
+		mapTypeId: google.maps.MapTypeId.ROADMAP,
+		styles: [
+				  {
+				    "elementType": "labels",
+				    "stylers": [
+				      { "visibility": "off" }
+				    ]
+				  },{
+				    "stylers": [
+				      { "saturation": -75 }
+				    ]
+				  },{
+				    "featureType": "road",
+				    "stylers": [
+				      { "weight": 1 }
+				    ]
+				  }
+				]
 };
 map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
