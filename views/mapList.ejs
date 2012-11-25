@@ -20,7 +20,7 @@
 		<p><a href='/maps/<%= map._id %>/show'>Ukázat výsledky mapy</a> · <a href='/maps/<%= map._id %>/fill'>Zadat vlastní pocity</a><% if (map.creator===user && user) { %> · <a href='/maps/<%= map._id %>/edit'>Upravit definici mapy</a> (jste autorem) <% }; %>
 		<p><%- map.comment %></p>
 		<% start = new Date(map.start); end = new Date(map.end); %>
-		<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth() %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth() %>. <%= end.getFullYear() %></p>
+		<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth()+1 %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth()+1 %>. <%= end.getFullYear() %></p>
 	</div>
 	</div>
 </div>
