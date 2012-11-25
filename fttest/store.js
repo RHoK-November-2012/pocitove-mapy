@@ -127,6 +127,19 @@ function isCellEmpty(cellData) {
   return typeof(cellData) == "string" && cellData == "";
 }
 
+function constructQueryFromKmls(kmls, tableID) {
+  var query = ' '
+  for (var i in kmls) {
+    var data = ' '
+    data = data + "('', 'obcan', '" + kmls[i] + "', '23.11.2012') "
+    query = query + "INSERT INTO " + tableID + " (Text, Skupina, Location, Date) VALUES " + data + "; "
+  }
+  data = data.substring(0, data.length - 2)
+  
+  
+  Logger.log('qqKmls: ' + query)
+  return encodeURIComponent(query);
+}
 
 function constructQueryCustom(suradnice, tableID) {
   var sArr = ('' + suradnice).split('|')
@@ -143,10 +156,8 @@ function constructQueryCustom(suradnice, tableID) {
   return encodeURIComponent(query);
 }
 
-
-function doGet(request) {
-  var suradnice = request.parameters.suradnice;
-  Logger.log('suradnice: ' + suradnice);
+// lat,lng|...
+function writePoints(suradnice) {
   var tableID = '1pWb0_r7jtnDBqThy7O2Hx_rXV47jaC--ZUFZxZo' // Add the table ID of the fusion table here
   var email = UserProperties.getProperty('email');
   var password = UserProperties.getProperty('password');
@@ -155,6 +166,135 @@ function doGet(request) {
   
   var authToken = getGAauthenticationToken(email,password);
   var updateMsg = queryFusionTables(authToken, query);
-  
-  return ContentService.createTextOutput('Děkujeme za Váš názor ' + updateMsg + ' ' + suradnice)
+  Logger.log('updateMsg: ' + updateMsg)
+
+  return updateMsg
 }
+
+function writeKmls(kmls) {
+  var tableID = '1pWb0_r7jtnDBqThy7O2Hx_rXV47jaC--ZUFZxZo' // Add the table ID of the fusion table here
+  var email = UserProperties.getProperty('email');
+  var password = UserProperties.getProperty('password');
+  var query = constructQueryFromKmls(kmls, tableID);
+  Logger.log('query: ' + query);
+  
+  var authToken = getGAauthenticationToken(email,password);
+  var updateMsg = queryFusionTables(authToken, query);
+  Logger.log('updateMsg: ' + updateMsg)
+
+  return updateMsg
+}
+
+// [[{lat:nnn, lng:nnn},...]...]
+function polylines2kmls(polylines) {
+  var kmls = []
+  
+  for (var i in polylines) {
+    var polyline = polylines[i]
+    var kml = ''
+    
+    Logger.log('polyline: ' + JSON.stringify(polyline))
+
+    for (var j in polyline) {
+      var p = polyline[j]
+      
+      kml = kml + p.lng + ',' + p.lat + ' '
+      
+      Logger.log('point: ' + JSON.stringify(p))
+    }
+    
+    kml = '<MultiGeometry><LineString><coordinates>' + kml + '</coordinates></LineString></MultiGeometry>'
+    Logger.log('polyline kml: ' + kml)
+    
+    kmls.push(kml)
+  }
+  
+  return kmls
+}
+
+// [[{lat:nnn, lng:nnn},...]...]
+function polygons2kmls(polygons) {
+  var kmls = []
+  
+  for (var i in polygons) {
+    var polygon = polygons[i]
+    var kml = ''
+    
+    Logger.log('polygone: ' + JSON.stringify(polygon))
+
+    for (var j in polygon) {
+      var p = polygon[j]
+      
+      kml = kml + p.lng + ',' + p.lat + ' '
+      
+      Logger.log('point: ' + JSON.stringify(p))
+    }
+
+    // last point
+    if (polygon.length) {
+      var p = polygon[0]
+      kml = kml + p.lng + ',' + p.lat + ' '
+      
+      Logger.log('last point: ' + JSON.stringify(p))
+    }
+    
+    kml = '<Polygon><outerBoundaryIs><LinearRing><coordinates>' + kml + '</coordinates></LinearRing></outerBoundaryIs></Polygon>'
+    Logger.log('polygone kml: ' + kml)
+    
+    kmls.push(kml)
+  }
+  
+  return kmls
+}
+
+function doGet(request) {
+  var suradnice = request.parameters.suradnice;
+  Logger.log('suradnice: ' + suradnice);
+  
+  var updateMsg = writePoints(suradnice)
+  
+  return ContentService.createTextOutput('Děkujeme za Váš názor \n' + updateMsg + '\n' + suradnice)
+}
+
+function doPost(request) {
+  var jsonData = request.parameters.data
+  Logger.log('doPost - jsonData: ' + jsonData)
+  var data = JSON.parse(jsonData)
+  Logger.log(data)
+  var points = data.points
+  Logger.log(points)
+  var polylines = data.polylines
+  Logger.log(polylines)
+  var polygons = data.polygons
+  Logger.log(polygons)
+  
+  var suradnice = ''
+  for (var i in points) {
+    var p = points[i]
+    
+    suradnice = suradnice + p.lat + ',' + p.lng + "|"
+  }
+  suradnice = suradnice.substring(0, suradnice.length - 1)
+  Logger.log("doPost - suradnice: " + suradnice)
+  
+  var updateMsg = ''
+  
+  if (suradnice.length > 0) {
+    updateMsg = updateMsg + 'points: \n' + writePoints(suradnice)
+  }
+  
+  if (polylines.length) {
+    updateMsg = updateMsg + writeKmls(polylines2kmls(polylines))
+  }
+  
+  if (polygons.length) {
+    updateMsg = updateMsg + writeKmls(polygons2kmls(polygons))
+  }
+  
+  return ContentService.createTextOutput('Děkujeme za Váš názor \n' + updateMsg
+    + '\npoints:\n' + suradnice 
+    + '\npolylines:\n' + JSON.stringify(polylines) 
+    + '\npolygons:\n' + JSON.stringify(polygons)
+  )
+}
+
