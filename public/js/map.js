@@ -10,151 +10,22 @@
       streetViewControl: false
       ,
       styles: [
-        {
-          featureType: "landscape.natural",
-          stylers: [
-            { color: "#ffffff" }
-          ]
-        },{
-          featureType: "administrative",
-          elementType: "geometry",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "administrative",
-          elementType: "labels.text",
-          stylers: [
-            { visibility: "off" },
-          ]
-        },{
-          featureType: "administrative.country",
-          elementType: "geometry",
-          stylers: [
-            { weight: 1 },
-            { visibility: "on" },
-            { color: "#010100" }
-          ]
-        },{
-          featureType: "road",
-          elementType: "geometry.stroke",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "road",
-          elementType: "geometry.fill",
-          stylers: [
-            { weight: 0.7 },
-            { color: "#006464" }
-          ]
-        },{
-          featureType: "road",
-          elementType: "labels.icon",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          elementType: "labels.text",
-          stylers: [
-            { visibility: "off" },
-            { color: "#ffffff" }
-          ]
-        },{
-          featureType: "landscape",
-          elementType: "labels.text",
-          stylers: [
-            { visibility: "off" },
-            { color: "#007575" }
-          ]
-        },{
-          featureType: "poi",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "administrative.land_parcel",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "poi.park",
-          stylers: [
-            { visibility: "on" }
-          ]
-        },{
-          featureType: "poi.park",
-          elementType: "labels.icon",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "transit",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "water",
-          elementType: "geometry",
-          stylers: [
-            { color: "#007575" }
-          ]
-        },{
-          featureType: "poi.park",
-          elementType: "geometry.fill",
-          stylers: [
-            { color: "#eeeeee" }
-          ]
-        },
-        {
-          featureType: "poi.park",
-          elementType: "labels.text",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },
-        {
-          featureType: "road",
-          elementType: "geometry.stroke",
-          stylers: [
-            { visibility: "off" },
-            { color: "#ffffff" },
-            { weight: 3 }
-          ]
-        },{
-          featureType: "road",
-          elementType: "labels.text",
-          stylers: [
-            { visibility: "off" },
-            { color: "#ffffff" },
-            { weight: 3 }
-          ]
-        },{
-          featureType: "transit",
-          stylers: [
-            { weight: 0.5 },
-            { color: "#007575" }
-          ]
-        },{
-          featureType: "road",
-          elementType: "labels.icon",
-          stylers: [
-            { visibility: "off" }
-          ]
-        },{
-          featureType: "road.highway",
-          elementType: "geometry.fill",
-          stylers: [
-            { weight: 2 }
-          ]
-        },{
-          featureType: "road.arterial",
-          elementType: "geometry.fill",
-          stylers: [
-            { weight: 1.3 }
-          ]
-        }
-      ]
+  {
+    "elementType": "labels",
+    "stylers": [
+      { "visibility": "off" }
+    ]
+  },{
+    "stylers": [
+      { "saturation": -75 }
+    ]
+  },{
+    "featureType": "road",
+    "stylers": [
+      { "weight": 1 }
+    ]
+  }
+]
     };
     map = new google.maps.Map(document.getElementById("map"), myOptions);
 
@@ -284,32 +155,63 @@ function setFeeling(i, color) {
 };
 
 function exportJson() {
-  var expo = new Object();
-  var whats = ["points", "polylines", "polygons"];
-  for (what in whats)
+  return {
+    shapes: exportShapes(),
+    answers: exportAnswers()
+  };
+}
+
+function exportShapes() {
+  var shapes = new Object();
+  var shapeNames = ["points", "polylines", "polygons"];
+  for (shapeName in shapeNames)
   {
-    what = whats[what];
-    expo[what] = [];
-    for (aThing in selected[what])
+    shapeName = shapeNames[shapeName];
+    shapes[shapeName] = [];
+    for (aThing in selected[shapeName])
     {
-      aThing = selected[what][aThing];
-      if (what === "points")
+      aThing = selected[shapeName][aThing];
+      console.log(aThing);
+      if (shapeName === "points")
       {
-        expo[what].push({
+        shapes[shapeName].push({
           lat: aThing.location.lat(),
-          lng: aThing.location.lng()
+          lng: aThing.location.lng(),
+          text: aThing.text,
+          feeling: aThing.feeling,
+          color: model.feelings[aThing.feeling].color
         });
       }
       else
       {
-        expo[what].push(aThing.path.map(function (o) {
-          return {
-            lat: o.lat(),
-            lng: o.lng()
-          }
-        }));
+        shapes[shapeName].push({
+            path: aThing.path.map(function (o) {
+              return {
+                lat: o.lat(),
+                lng: o.lng()
+              }
+            }),
+            feeling: aThing.feeling,
+            text: aThing.text ? aThing.text : ""
+        });
       }
     }
   }
-  return expo;
+  return shapes;
+}
+
+function exportAnswers() {
+  answers = new Object();
+  for (var i=0; i<model.criteria.length; i++)
+  {
+    if (model.criteria.type === "text")
+    {
+      answers[i] = $("criterion" + i).val();
+    }
+    else
+    {
+      answers[i] = $("criterion" + i).val();
+    }
+  }
+  return answers;
 }
