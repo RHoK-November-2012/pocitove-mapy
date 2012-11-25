@@ -1,7 +1,6 @@
 settings = require('../modules/settings');
 db = require("mongoskin").db(settings.MONGO_URI, {safe: true});
 maps = db.collection('maps');
-fillIns = db.collections('fillIns');
 
 // /maps
 exports.list = function(req, res) {
@@ -17,11 +16,12 @@ exports.list = function(req, res) {
 
 // /maps/:mapId/show
 exports.show = function(req, res) {
-	maps.findById(req.param("mapId"), function (map) {
+	maps.findById(req.params.mapId, function (map) {
 		res.render('mapShow', {
 			title: 'Prohlížení mapy',
 			page: 'mapShow',
 			user: req.session['user'],
+			mapId: req.params.mapId,
 			model: map
 		});
 	});
@@ -29,7 +29,7 @@ exports.show = function(req, res) {
 
 // /maps/:mapId/fill
 exports.fill = function(req, res) {
-	maps.findById(req.param("mapId"), function (map) {
+	maps.findById(req.params.mapId, function (map) {
 		res.render('mapFill', {
 			title: 'Vyplňování mapy',
         	page: 'mapFill',
@@ -41,8 +41,8 @@ exports.fill = function(req, res) {
 
 // /maps/:mapId/save
 exports.save = function(req, res) {
-	fillIns.insert({
-		map: req.param("mapId"),
+	db.collection('fillIns').insert({
+		map: req.params.mapId,
 		dateTime: new Date(),
 		ip: req.connection.remoteAddress,
 		shapes: req.body.shapes
@@ -64,7 +64,7 @@ exports.design = function(req, res){
 
 // /maps/:mapId/edit
 exports.edit = function(req, res) {
-	maps.findById(req.param("mapId"), function (map) {
+	maps.findById(req.params.mapId, function (map) {
 		res.render('mapDesign', {
 			title: 'Úprava existující mapy',
 			page: 'mapDesign',
