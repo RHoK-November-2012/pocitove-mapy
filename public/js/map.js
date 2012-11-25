@@ -8,7 +8,8 @@
       center: new google.maps.LatLng(latlng.lat, latlng.lng),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
-      streetViewControl: false,
+      streetViewControl: false
+      ,
       styles: [
         {
           featureType: "landscape.natural",
@@ -105,7 +106,15 @@
           stylers: [
             { color: "#eeeeee" }
           ]
-        },{
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },
+        {
           featureType: "road",
           elementType: "geometry.stroke",
           stylers: [
@@ -189,12 +198,21 @@ function addMarker(location) {
         new google.maps.Point(0, 0),
         new google.maps.Point(12, 35));
 
-    marker = new google.maps.Marker({
+    var marker = new google.maps.Marker({
       position: location,
       map: map,
       icon: pinImage,
-      shadow: pinShadow
+      shadow: pinShadow,
+      clickable: true,
+      draggable: true
     });
+
+    google.maps.event.addListener(marker, "click", function() {
+      var infoWindow = new google.maps.InfoWindow();
+      infoWindow.setContent("Ahoj!");
+      infoWindow.open(map, this);
+    });
+
     selected.points.push({
       location: location,
       feeling: actualFeeling.id,

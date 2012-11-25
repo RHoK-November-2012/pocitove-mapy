@@ -6,6 +6,10 @@
   border: 1px solid black;
 }
 
+#map_canvas img {
+  max-width: none;
+}
+
 #panel
 {
   position: absolute;
