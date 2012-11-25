@@ -1,6 +1,7 @@
 #map {
-  width: 600px;
-  height: 450px;
+  position: relative;
+  width: 100%;
+  height: 600px;
   background-color: white;
   border: 1px solid black;
 }
@@ -110,4 +111,25 @@ span.help-inline {
 {
   width: 100%;
   height: 100px;
+}
+
+#pointSelect
+{
+  width: 32px;
+  height: 32px;
+  background-image: url('/img/icon-point.png');
+}
+
+#polylineSelect
+{
+  width: 32px;
+  height: 32px;
+  background-image: url('/img/icon-polyline.png');
+}
+
+#polygonSelect
+{
+  width: 32px;
+  height: 32px;
+  background-image: url('/img/icon-polygon.png');
 }

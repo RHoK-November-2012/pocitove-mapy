@@ -153,6 +153,8 @@
     google.maps.event.addListener(map, 'click', function(event) {
       addMarker(event.latLng);
     });
+
+    return map;
   }
 
 var selected =
