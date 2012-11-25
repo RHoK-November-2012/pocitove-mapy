@@ -167,7 +167,7 @@ function exportJson() {
     shapes.polygons = [];
   };
   return {
-    shapes: ,
+    shapes: shapes,
     answers: exportAnswers()
   };
 }
