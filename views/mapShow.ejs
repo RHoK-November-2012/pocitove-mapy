@@ -80,8 +80,9 @@ var drawingManager = new google.maps.drawing.DrawingManager({
 });
 drawingManager.setMap(map);
 
-
 var points = [<%- points %>];
+var lines = [<%- lines %>];
+var polygons = [<%- polygons %>];
 
 for (var i = 0; i < points.length; i++) {
 	var f = function () {
@@ -105,6 +106,60 @@ for (var i = 0; i < points.length; i++) {
 			var infoWindow = new google.maps.InfoWindow();
 			infoWindow.setContent(point['text']);
 			infoWindow.open(map, this);
+		});
+	};
+	f();
+}
+
+for (var i = 0; i < lines.length; i++) {
+	var f = function () {
+		var line = lines[i];
+		var path = [];
+		for (var j = 0; j < line['path'].length; j++) {
+			path.push(new google.maps.LatLng(line['path'][j]['lat'], line['path'][j]['lng']));
+		}
+		var polyline = new google.maps.Polyline({
+			path: path,
+			strokeColor: line['color'],
+          	strokeOpacity: 1.0,
+          	strokeWeight: 2
+		});
+		polyline.setMap(map);
+
+		google.maps.event.addListener(polyline, 'click', function (event) {
+			var marker = new google.maps.Marker({
+				position: event.latLng,
+			});
+			var infoWindow = new google.maps.InfoWindow();
+			infoWindow.setContent(line['text']);
+			infoWindow.open(map, marker);
+		});
+	};
+	f();
+}
+
+for (var i = 0; i < polygons.length; i++) {
+	var f = function () {
+		var polygon = polygons[i];
+		var path = [];
+		for (var j = 0; j < polygon['path'].length; j++) {
+			path.push(new google.maps.LatLng(polygon['path'][j]['lat'], polygon['path'][j]['lng']));
+		}
+		var gpolygon = new google.maps.Polygon({
+			paths: path,
+			strokeColor: polygon['color'],
+          	strokeOpacity: 1.0,
+          	strokeWeight: 2
+		});
+		gpolygon.setMap(map);
+
+		google.maps.event.addListener(gpolygon, 'click', function (event) {
+			var marker = new google.maps.Marker({
+				position: event.latLng,
+			});
+			var infoWindow = new google.maps.InfoWindow();
+			infoWindow.setContent(polygon['text']);
+			infoWindow.open(map, marker);
 		});
 	};
 	f();

@@ -207,7 +207,8 @@ function exportShapes() {
               }
             }),
             feeling: aThing.feeling,
-            text: aThing.text ? aThing.text : ""
+            text: aThing.text ? aThing.text : "",
+            color: model.feelings[aThing.feeling].color
         });
       }
     }

@@ -19,6 +19,9 @@ exports.list = function(req, res) {
 exports.show = function(req, res) {
     fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
         var points = [];
+        var lines = [];
+        var polygons = [];
+
         for (var i = 0; i < fs.length; i++) {
             if ('points' in fs[i]['shapes']) {
                 for (var j = 0; j < fs[i]['shapes']['points'].length; j++) {
@@ -26,6 +29,23 @@ exports.show = function(req, res) {
                 }
             }
         }
+
+        for (var i = 0; i < fs.length; i++) {
+            if ('polylines' in fs[i]['shapes']) {
+                for (var j = 0; j < fs[i]['shapes']['polylines'].length; j++) {
+                    lines.push(JSON.stringify(fs[i]['shapes']['polylines'][j]));
+                }
+            }
+        }
+
+        for (var i = 0; i < fs.length; i++) {
+            if ('polygons' in fs[i]['shapes']) {
+                for (var j = 0; j < fs[i]['shapes']['polygons'].length; j++) {
+                    polygons.push(JSON.stringify(fs[i]['shapes']['polygons'][j]));
+                }
+            }
+        }
+
         maps.findById(req.params.mapId, function (err, map) {
             res.render('mapShow', {
                 title: 'Prohlížení mapy',
@@ -33,7 +53,9 @@ exports.show = function(req, res) {
                 user: req.session['user'],
                 mapId: req.params.mapId,
                 model: map,
-                points: points
+                points: points,
+                lines: lines,
+                polygons: polygons,
             });
         });
     });
