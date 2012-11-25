@@ -39,11 +39,11 @@
     });
 
     $.getJSON("shapes", function(data) {
-      for (int i=0; i<data.length; i++) {
+      for (var i=0; i<data.length; i++) {
         submit = data[i];
         if (submit.shapes.points)
         {
-          for (int j=0; j<submit.shapes.points.length; j++){
+          for (var j=0; j<submit.shapes.points.length; j++){
             point = submit.shapes.points[j];
             
           }
