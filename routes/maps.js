@@ -1,5 +1,7 @@
 settings = require('../modules/settings');
-maps = require("mongoskin").db(settings.MONGO_URI, {safe: true}).collection('maps');
+db = require("mongoskin").db(settings.MONGO_URI, {safe: true});
+maps = db.collection('maps');
+fillIns = db.collections('fillIns');
 
 // /maps
 exports.list = function(req, res) {
@@ -37,9 +39,18 @@ exports.fill = function(req, res) {
 	});
 };
 
-// /maps/save
+// /maps/:mapId/save
 exports.save = function(req, res) {
-	res.send(req.body);
+	fillIns.insert({
+		map: req.param("mapId"),
+		dateTime: new Date(),
+		ip: req.connection.remoteAddress,
+		shapes: req.body.shapes
+	}, function() {
+		res.send({
+			result: "ok"
+		});
+	});
 };
 
 // /maps/design

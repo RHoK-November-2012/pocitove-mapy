@@ -291,9 +291,11 @@ $(document).ready(function () {
   });
 
   $("#save").click(function() {
-    $.post("/map/addShapes",
+    $.post("save",
       {
-        "submission": exportJson()
+        "shapes": exportJson()
+      }, function(data) {
+        console.log(data);
       });
   });
 });

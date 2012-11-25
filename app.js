@@ -46,7 +46,7 @@ app.post('/register', user.post_register);
 app.get('/maps', maps.list);
 app.get('/maps/:mapId/show', maps.show);
 app.get('/maps/:mapId/fill', maps.fill);
-app.post('/maps/save', maps.save);
+app.post('/maps/:mapId/save', maps.save);
 app.get('/maps/design', maps.design);
 app.post('/maps/create', maps.create);
 
