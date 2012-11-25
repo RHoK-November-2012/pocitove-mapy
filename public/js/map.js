@@ -1,4 +1,5 @@
   var map;
+  var drawingManager;
   var markersArray = [];
 
   function initialize_map(latlng, zoom) {

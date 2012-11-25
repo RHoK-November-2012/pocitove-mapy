@@ -7,6 +7,106 @@
 	</div>
 </div>
 <% } else { %>
+	<script type="text/javascript">
+		tIdToMarkers = new Object();
+		tId = 0;
+
+		$(document).ready(function() {
+			map = initialize_map({
+				lat: <%= model.latlon[0] %>,
+				lng: <%= model.latlon[1] %>
+			}, <%= model.zoom %>);
+
+			drawingManager = new google.maps.drawing.DrawingManager({
+				drawingMode: google.maps.drawing.OverlayType.MARKER,
+				drawingControl: true,
+				drawingControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER,
+				drawingModes: [
+					google.maps.drawing.OverlayType.MARKER,
+					google.maps.drawing.OverlayType.POLYGON,
+					google.maps.drawing.OverlayType.POLYLINE,
+				]
+				},
+				markerOptions: {
+					icon: {
+						path: google.maps.SymbolPath.CIRCLE,
+					    scale: 5,
+					    fillColor: "#ff0000",
+					    fillOpacity: 0.5,
+					    strokeColor: "#ff0000",
+					    strokeWeight: 1,
+					    clickable: true,
+					},
+				},
+				polygonOption: {
+					fillColor: "<%= feeling.color %>",
+				    fillOpacity: 0.5,
+				    strokeColor: "<%= feeling.color %>",
+				    strokeWeight: 1,
+				    clickable: true,
+				},
+				polylineOptions: {
+					fillColor: "<%= feeling.color %>",
+				    fillOpacity: 0.5,
+				    strokeColor: "<%= feeling.color %>",
+				    strokeWeight: 1,
+				    clickable: true,
+				}
+			});
+			drawingManager.setMap(map);
+
+			google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+		      if(event.type == google.maps.drawing.OverlayType.POLYLINE) {
+		        polyline = event.overlay;
+			    polyline.setOptions({
+			    	strokeColor: actualFeeling.color,
+			    });
+			    selected.polylines.push({
+			        path: polyline.getPath().getArray(),
+			        feeling: actualFeeling.id,
+			        polyline: polyline
+			    });
+		      }
+		      else if (event.type == google.maps.drawing.OverlayType.POLYGON) {
+		      	polygon = event.overlay;
+		      	polygon.setOptions({
+		      		strokeColor: actualFeeling.color,
+		      		fillColor: actualFeeling.color,
+		      	});
+			    selected.polygons.push({
+			        path: polygon.getPath().getArray(),
+			        feeling: actualFeeling.id,
+			        polygon: polygon
+			    });
+		      }
+		      else if(event.type == google.maps.drawing.OverlayType.MARKER) {
+		        var marker = event.overlay;
+			    selected.points.push({
+			    	location: marker.getPosition(),
+			    	feeling: actualFeeling.id,
+			    	marker: marker
+			    });
+
+			    tId++;
+    			tIdToMarkers["t" + tId] = selected.points[selected.points.length-1];
+
+		        google.maps.event.addListener(marker, 'click', function() {
+			    	var infoWindow = new google.maps.InfoWindow();
+			    	infoWindow.setContent("<textarea id='t" + tId + "'>" + (selected.points[selected.points.length-1].text ? selected.points[selected.points.length-1].text : "") + "</textarea><div style='text-align:right'><button class='saveCommentButton'>Uložit</button></div>");
+			    	infoWindow.open(map, this);
+		        });
+		      }
+		    });
+
+			$("#save").click(function() {
+			  $.post("save", exportJson(), function(data) {
+			      window.location.href = "show";
+			    });
+			});
+		});
+	</script>
+
 	<script type="text/javascript">window.model = <%- JSON.stringify(model) %>;</script>
 	<h1><%= model.title %></h1>
 	<div class="row">
@@ -21,6 +121,33 @@
 						setFeeling(<%=i%>, "<%= feeling.color %>");
 						$(".feelings .btn").removeClass("active");
 						$("#feeling<%=i%>").addClass("active");
+						drawingManager.setOptions({
+							markerOptions: {
+								icon: {
+									path: google.maps.SymbolPath.CIRCLE,
+								    scale: 5,
+								    fillColor: "<%= feeling.color %>",
+								    fillOpacity: 0.5,
+								    strokeColor: "<%= feeling.color %>",
+								    strokeWeight: 1,
+								    clickable: true,
+								},
+							},
+							polygonOptions: {
+								fillColor: "<%= feeling.color %>",
+							    fillOpacity: 0.5,
+							    strokeColor: "<%= feeling.color %>",
+							    strokeWeight: 3,
+							    clickable: true,
+							},
+							polylineOptions: {
+								fillColor: "<%= feeling.color %>",
+							    fillOpacity: 0.5,
+							    strokeColor: "<%= feeling.color %>",
+							    strokeWeight: 3,
+							    clickable: true,
+							}
+						});
 					});
 				</script>
 			<% } %>
@@ -56,91 +183,6 @@
 		  	<button id="save" class="save btn btn-success action">Hotovo!</button>
 		</div>
 	</div>
-
-	<script type="text/javascript">
-		tIdToMarkers = new Object();
-		tId = 0;
-
-		$(document).ready(function() {
-			map = initialize_map({
-				lat: <%= model.latlon[0] %>,
-				lng: <%= model.latlon[1] %>
-			}, <%= model.zoom %>);
-
-			var drawingManager = new google.maps.drawing.DrawingManager({
-				drawingMode: google.maps.drawing.OverlayType.MARKER,
-				drawingControl: true,
-				drawingControlOptions: {
-				position: google.maps.ControlPosition.TOP_CENTER,
-				drawingModes: [
-					google.maps.drawing.OverlayType.MARKER,
-					google.maps.drawing.OverlayType.POLYGON,
-					google.maps.drawing.OverlayType.POLYLINE,
-				]
-				},
-				markerOptions: {
-					icon: {
-						path: google.maps.SymbolPath.CIRCLE,
-					    scale: 5,
-					    fillColor: "#ff0000",
-					    fillOpacity: 0.5,
-					    strokeColor: "#ff0000",
-					    strokeWeight: 1,
-					    clickable: true,
-					},
-				},
-			});
-			drawingManager.setMap(map);
-
-			google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
-		      if(event.type == google.maps.drawing.OverlayType.POLYLINE) {
-		        polyline = event.overlay;
-			    polyline.setOptions({
-			    	strokeColor: actualFeeling.color
-			    });
-			    selected.polylines.push({
-			        path: polyline.getPath().getArray(),
-			        feeling: actualFeeling.id,
-			        polyline: polyline
-			    });
-		      }
-		      else if (event.type == google.maps.drawing.OverlayType.POLYGON) {
-		      	polygon = event.overlay;
-		      	polygon.setOptions({
-		      		strokeColor: actualFeeling.color
-		      	});
-			    selected.polygons.push({
-			        path: polygon.getPath().getArray(),
-			        feeling: actualFeeling.id,
-			        polygon: polygon
-			    });
-		      }
-		      else if(event.type == google.maps.drawing.OverlayType.MARKER) {
-		        var marker = event.overlay;
-			    selected.points.push({
-			    	location: marker.getPosition(),
-			    	feeling: actualFeeling.id,
-			    	marker: marker
-			    });
-
-			    tId++;
-    			tIdToMarkers["t" + tId] = selected.points[selected.points.length-1];
-
-		        google.maps.event.addListener(marker, 'click', function() {
-			    	var infoWindow = new google.maps.InfoWindow();
-			    	infoWindow.setContent("<textarea id='t" + tId + "'>" + (selected.points[selected.points.length-1].text ? selected.points[selected.points.length-1].text : "") + "</textarea><div style='text-align:right'><button class='saveCommentButton'>Uložit</button></div>");
-			    	infoWindow.open(map, this);
-		        });
-		      }
-		    });
-
-			$("#save").click(function() {
-			  $.post("save", exportJson(), function(data) {
-			      window.location.href = "show";
-			    });
-			});
-		});
-	</script>
 <% }; %>
 
 <% include footer.ejs %>
