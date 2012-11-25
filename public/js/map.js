@@ -38,6 +38,10 @@
       tIdToMarkers[$ta.attr("id")].text = $ta.val();
     });
 
+    $.getJSON("shapes", function(data) {
+      console.log(data);
+    });
+
     return map;
   }
 
@@ -166,6 +170,7 @@ function exportJson() {
   {
     shapes.polygons = [];
   };
+  console.log(shapes);
   return {
     shapes: shapes,
     answers: exportAnswers()

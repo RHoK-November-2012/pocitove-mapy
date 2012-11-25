@@ -47,6 +47,7 @@ app.get('/maps', maps.list);
 app.get('/maps/:mapId/show', maps.show);
 app.get('/maps/:mapId/fill', maps.fill);
 app.post('/maps/:mapId/save', maps.save);
+app.get('/maps/:mapId/shapes', maps.shapes);
 
 app.get('/maps/design', maps.design);
 app.get('/maps/:mapId/edit', maps.edit);

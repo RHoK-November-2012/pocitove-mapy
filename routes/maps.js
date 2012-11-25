@@ -50,6 +50,13 @@ exports.fill = function(req, res) {
 	});
 };
 
+// /maps/:mapId/shapes
+exports.shapes = function(req, res) {
+	db.collection('fillIns').find({ map: req.params.mapId }).toArray(function (err, shapes) {
+		res.send(shapes);
+	});
+};
+
 // /maps/:mapId/save
 exports.save = function(req, res) {
 	db.collection('fillIns').insert({
