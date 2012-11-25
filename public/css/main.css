@@ -120,21 +120,30 @@ span.help-inline {
 {
   width: 32px;
   height: 32px;
+  padding: 10px;
   background-image: url('/img/icon-point.png');
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 #polylineSelect
 {
   width: 32px;
   height: 32px;
+  padding: 10px;
   background-image: url('/img/icon-polyline.png');
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 #polygonSelect
 {
   width: 32px;
   height: 32px;
+  padding: 10px;
   background-image: url('/img/icon-polygon.png');
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .feelingColorBox
