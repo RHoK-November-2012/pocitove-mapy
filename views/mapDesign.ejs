@@ -2,13 +2,13 @@
 
 <div class="row">
     <div class="span8 offset2">
-        <h2><%= title %></h2>
+        <h1><%= title %></h1>
         <hr>
     </div>
 </div>
 <% if (!user) { %>
 <div class="row">
-    <div class="span8 offset2 alert">
+    <div class="span8 offset2 alert alert-error">
         <p>K vytvoření nové mapy je třeba mít na našem serveru účet. Jste-li <a href="/register">zaregistrováni</a>,
             stačí se jen v horní části stránky přihlásit.
     </div>
@@ -27,7 +27,7 @@
             <div class="control-group">
                 <label class="control-label" for="inputComment">Komentář:</label>
                 <div class="controls">
-                    <textarea class="span6" name="comment" id="inputComment" cols="60" rows="5">Poznámky k mé pocitové mapě.</textarea>
+                    <textarea class="span6" name="comment" id="inputComment" cols="60" rows="5"></textarea>
                 </div>
             </div>
 
@@ -92,7 +92,11 @@
 
             <div class="control-group">
                 <div class="controls">
+                    <% if (user) { %>
                     <input type="submit" value="Vytvořit" class="btn"/>
+                    <% } else { %>
+                    <input type="submit" value="Vytvořit" disabled="disabled" class="btn disabled"/>
+                    <% } %>
                 </div>
             </div>
         </form>
@@ -185,7 +189,15 @@ $(document).ready(function() {
     $(".nonradio_select").live('click', function () {
         $(this).parents(".criterion_item").find(".select_list").hide();
     });
+
+    CKEDITOR.replace('inputComment', {
+        toolbar: [
+            ['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink']
+        ],
+    });
 })
 </script>
+
+<script type="text/javascript" src="/ckeditor/ckeditor.js"/>
 
 <% include footer.ejs %>

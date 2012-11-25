@@ -84,3 +84,26 @@ span.help-inline {
 .mapPreview {
     width: 100%;
 }
+
+.mapItem {
+  border: 1px solid #DDD;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  padding-left: 0px;
+  padding-bottom: 0px;
+  margin-bottom: 20px;
+  max-height: 180px;
+}
+
+.mapItem div:first-child {
+  margin-left: 0;
+  border-right: 1px solid #DDD;
+  height: 100%;
+  margin-bottom: 0px;
+}
+
+.mapItem div:last-child {
+  max-height: 180px;
+  overflow: hidden;
+}

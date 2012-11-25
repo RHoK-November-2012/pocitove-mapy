@@ -11,7 +11,6 @@
 	<div class="row">
 		<div>
 			<% for (var i=0; i<model.feelings.length; i++) { feeling=model.feelings[i]; %>
-				
 			<% } %>
 		</div>
 		<button id="pointSelect" class="sel">Misto</button>
@@ -45,7 +44,7 @@
 			    selectionMode = POLYLINES;
 			    actualPolyline = undefined;
 			    actualPolygon = undefined;
-			    
+
 			    $(".sel").removeClass("sel").addClass("unsel");
 			    $("#polylineSelect").addClass("sel").removeClass("unsel");
 			  });
@@ -53,7 +52,7 @@
 			    selectionMode = POLYGONS;
 			    actualPolyline = undefined;
 			    actualPolygon = undefined;
-			    
+
 			    $(".sel").removeClass("sel").addClass("unsel");
 			    $("#polygonSelect").addClass("sel").removeClass("unsel");
 			  });

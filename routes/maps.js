@@ -78,6 +78,11 @@ exports.edit = function(req, res) {
 
 // /maps/create
 exports.create = function(req, res) {
+    if (!req.session['user']) {
+        res.redirect('back');
+        return;
+    }
+
     var feelings = [];
     var criteria = [];
 
@@ -116,6 +121,6 @@ exports.create = function(req, res) {
         zoom: req.body.zoom
     };
     maps.insert(map, function() {
-    	res.redirect(settings.BASE_URI + "/maps");	
+    	res.redirect(settings.BASE_URI + "/maps");
     });
 }
