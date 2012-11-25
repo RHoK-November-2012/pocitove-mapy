@@ -6,6 +6,14 @@
         <hr>
     </div>
 </div>
+<% if (!user) { %>
+<div class="row">
+    <div class="span8 offset2 alert">
+        <p>K vytvoření nové mapy je třeba mít na našem serveru účet. Jste-li <a href="/register">zaregistrováni</a>,
+            stačí se jen v horní části stránky přihlásit.
+    </div>
+</div>
+<% }; %>
 <div class="row">
     <div class="span8 offset2">
         <form class="form-horizontal" id="new_map_form" action="/maps/create" method="post">

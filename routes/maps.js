@@ -1,11 +1,11 @@
-maps = require("mongoskin").db('localhost:27017/pomapy', {safe: true}).collection('maps');
-settings = require("../modules/settings");
+settings = require('../modules/settings');
+maps = require("mongoskin").db(settings.MONGO_URI, {safe: true}).collection('maps');
 
 // /maps
 exports.list = function(req, res) {
 	maps.find().toArray(function(err, maps) {
 		res.render('mapList', {
-			title: 'Atlas map',
+			title: 'Seznam map',
 			page: 'mapList',
 			user: req.session['user'],
 			model: maps
@@ -76,20 +76,24 @@ exports.create = function(req, res) {
         feelings.push(feeling);
     }
 
-    for (var i = 0; i < req.body.criterion.length; i++) {
-        var criterion = {
-            text: req.body.criterion[i],
-            type: req.body.criterion_type[i],
-            options: req.body.criterion_values[i].split(/\s+/)
-        }
-        criteria.push(criterion);
-    }
+    if (req.body.criterion)
+    {
+	    for (var i = 0; i < req.body.criterion.length; i++) {
+	        var criterion = {
+	            text: req.body.criterion[i],
+	            type: req.body.criterion_type[i],
+	            options: req.body.criterion_values[i].split(/\s+/)
+	        };
+	        criteria.push(criterion);
+	    };
+	};
 
     var latlon = req.body.latlon.slice(1, req.body.latlon.length-1).split(/[\s,]+/);
 
     var map = {
         title: req.body.title,
         comment: req.body.comment,
+        creator: req.session['user'],
         feelings: feelings,
         criteria: criteria,
         public: req.body.public == "on",
