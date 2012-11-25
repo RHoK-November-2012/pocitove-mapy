@@ -63,19 +63,71 @@ exports.design = function(req, res){
 		user: req.session['user'],
         mapId: -1,
         model: {},
+        default_criteria: [
+            {
+                text: "Pohlaví:",
+                type: "select",
+                options: ["muž", "žena"],
+            },
+            {
+                text: "Rok narození:",
+                type: "text",
+                options: [],
+            },
+            {
+                text: "Nejvyšší ukončené vzdělání:",
+                type: "select",
+                options: [
+                    "základní bez vyučení",
+                    "vyučení a střední odborné bez maturity",
+                    "úplné střední s maturitou",
+                    "vyšší odborné a nástavbové",
+                    "vysokoškolské",
+                ],
+            },
+            {
+                text: "Současné ekonomické postavení:",
+                type: "select",
+                options: [
+                    "zaměstnanec",
+                    "soukromý podnikatel, živnostník",
+                    "student",
+                    "v domácnosti",
+                    "důchodce",
+                    "nezaměstnaný",
+                ],
+            },
+            {
+                text: "Jaký vztah mám k dané lokalitě:",
+                type: "select",
+                options: [
+                    "bydlím v centru",
+                    "bydlím vedle centra",
+                    "bydlím na sídlišti",
+                    "bydlím ve vilové čtvrti",
+                    "bydlím za městem, obcí",
+                    "bydlím uplně mimo zadanou oblast",
+                ],
+            }
+        ]
 	});
 };
 
 // /maps/:mapId/edit
 exports.edit = function(req, res) {
 	maps.findById(req.params.mapId, function (err, map) {
-		res.render('mapDesign', {
-			title: 'Úprava existující mapy',
-			page: 'mapDesign',
-			user: req.session['user'],
-			mapId: req.params.mapId,
-			model: map
-		});
+        if (map && map['creator'] == req.session['user']) {
+    		res.render('mapDesign', {
+    			title: 'Úprava existující mapy',
+    			page: 'mapDesign',
+    			user: req.session['user'],
+    			mapId: req.params.mapId,
+    			model: map,
+                default_criteria: [],
+    		});
+        } else {
+            res.redirect('/maps');
+        }
 	});
 };
 
@@ -123,7 +175,20 @@ exports.create = function(req, res) {
         latlon: latlon,
         zoom: req.body.zoom
     };
-    maps.insert(map, function() {
-    	res.redirect(settings.BASE_URI + "/maps");
-    });
+
+    if (req.body.mapId != -1) {
+        maps.findById(req.body.mapId, function(err, old_map) {
+            if (old_map && old_map['creator'] == req.session['user']) {
+                maps.updateById(req.body.mapId, map, function (err, map) {
+                    console.log(err);
+                    console.log(map);
+                    res.redirect('/maps');
+                });
+            }
+        });
+    } else {
+        maps.insert(map, function() {
+        	res.redirect(settings.BASE_URI + "/maps");
+        });
+    }
 }
