@@ -13,7 +13,7 @@ exports.list = function(req, res) {
 	});
 };
 
-// /maps/:mapId
+// /maps/:mapId/show
 exports.show = function(req, res) {
 	maps.findById(req.param("mapId"), function (map) {
 		res.render('mapShow', {
