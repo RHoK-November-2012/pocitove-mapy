@@ -59,7 +59,9 @@ exports.design = function(req, res){
 	res.render('mapDesign', {
 		title: 'Návrh nové mapy',
 		page: 'mapDesign',
-		user: req.session['user']
+		user: req.session['user'],
+        mapId: -1,
+        model: {},
 	});
 };
 

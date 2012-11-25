@@ -20,14 +20,15 @@
             <div class="control-group">
                 <label class="control-label" for="inputTitle">Název pocitové mapy:</label>
                 <div class="controls">
-                    <input type="text" name="title" id="inputTitle" placeholder="Moje pocitová mapa"/>
+                    <input type="text" name="title" id="inputTitle" placeholder="Moje pocitová mapa" <% if ('title' in model) { %>value="<%= model["title"] %>"<% } %>/>
                 </div>
             </div>
 
             <div class="control-group">
                 <label class="control-label" for="inputComment">Komentář:</label>
                 <div class="controls">
-                    <textarea class="span6" name="comment" id="inputComment" cols="60" rows="5"></textarea>
+                    <textarea class="span6" name="comment" id="inputComment" cols="60" rows="5"><% if ('comment' in model) { %><%= model['comment'] %><% } %>
+                    </textarea>
                 </div>
             </div>
 
@@ -140,10 +141,23 @@ function new_criterion_item(i, question, radio_text, list) {
 }
 
 $(document).ready(function() {
+    //
+    // Google Maps
+    //
     function initialize() {
         var mapOptions = {
-            zoom: 7,
+            <% if ('zoom' in model) { %>
+                zoom: <%=model['zoom']%>,
+            <% } else { %>
+                zoom: 7,
+            <% } %>
+
+            <% if ('latlon' in model) { %>
+            center: new google.maps.LatLng(<%=model['latlon'][0]%>, <%=model['latlon'][1]%>),
+            <% } else { %>
             center: new google.maps.LatLng(49.82380908513248, 15.399462890625),
+            <% } %>
+
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
@@ -161,10 +175,18 @@ $(document).ready(function() {
         $("#zoom").val(map.getZoom());
     });
 
+    //
+    // Initialization of form.
+    //
+
     $("#feeling_prepend").prepend(new_feeling_item(i, "", ""));
     $("#criterion_prepend").prepend(new_criterion_item(j, "", true, ""));
     i++;
     j++;
+
+    //
+    // Event handlers.
+    //
 
     $("#add_new_feeling_button").click(function () {
         $("#feeling_prepend").append(new_feeling_item(i, "#000000", ""));
@@ -191,6 +213,10 @@ $(document).ready(function() {
     $(".nonradio_select").live('click', function () {
         $(this).parents(".criterion_item").find(".select_list").hide();
     });
+
+    //
+    // WYSIWYG editor.
+    //
 
     CKEDITOR.replace('inputComment', {
         toolbar: [
