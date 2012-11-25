@@ -58,63 +58,81 @@
 	</div>
 
 	<script type="text/javascript">
+		tIdToMarkers = new Object();
+		tId = 0;
+
 		$(document).ready(function() {
 			map = initialize_map({
 				lat: <%= model.latlon[0] %>,
 				lng: <%= model.latlon[1] %>
 			}, <%= model.zoom %>);
 
-			$polygonSelect = $("<div>",
-			{
-				id: "polygonSelect",
-				class: "polygonSelectUnselected",
-				click: function() {
-				    selectionMode = POLYGONS;
-				    actualPolyline = undefined;
-				    actualPolygon = undefined;
-
-				    $(".polylineSelectSelected").removeClass("polylineSelectSelected").addClass("polylineSelectUnselected");
-				    $(".polygonSelectUnselected").removeClass("polygonSelectUnselected").addClass("polygonSelectSelected");
-				    $(".noSelectSelected").removeClass("noSelectSelected").addClass("noSelectUnselected");
-				    $(".pointSelectSelected").addClass("pointSelectUnselected").removeClass("pointSelectSelected");
-			    },
-			    html: "<div></div>"
+			var drawingManager = new google.maps.drawing.DrawingManager({
+				drawingMode: google.maps.drawing.OverlayType.MARKER,
+				drawingControl: true,
+				drawingControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER,
+				drawingModes: [
+					google.maps.drawing.OverlayType.MARKER,
+					google.maps.drawing.OverlayType.POLYGON,
+					google.maps.drawing.OverlayType.POLYLINE,
+				]
+				},
+				markerOptions: {
+					icon: {
+						path: google.maps.SymbolPath.CIRCLE,
+					    scale: 5,
+					    fillColor: "#ff0000",
+					    fillOpacity: 0.5,
+					    strokeColor: "#ff0000",
+					    strokeWeight: 1,
+					    clickable: true,
+					},
+				},
 			});
-			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polygonSelect.get(0));
+			drawingManager.setMap(map);
 
-			$polylineSelect = $("<div>",
-			{
-				id: "polylineSelect",
-				class: "polylineSelectUnselected",
-				click: function() {
-					selectionMode = POLYLINES;
-				    actualPolyline = undefined;
-				    actualPolygon = undefined;
+			google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+		      if(event.type == google.maps.drawing.OverlayType.POLYLINE) {
+		        polyline = event.overlay;
+			    polyline.setOptions({
+			    	strokeColor: actualFeeling.color
+			    });
+			    selected.polylines.push({
+			        path: polyline.getPath().getArray(),
+			        feeling: actualFeeling.id,
+			        polyline: polyline
+			    });
+		      }
+		      else if (event.type == google.maps.drawing.OverlayType.POLYGON) {
+		      	polygon = event.overlay;
+		      	polygon.setOptions({
+		      		strokeColor: actualFeeling.color
+		      	});
+			    selected.polygons.push({
+			        path: polygon.getPath().getArray(),
+			        feeling: actualFeeling.id,
+			        polygon: polygon
+			    });
+		      }
+		      else if(event.type == google.maps.drawing.OverlayType.MARKER) {
+		        var marker = event.overlay;
+			    selected.points.push({
+			    	location: marker.getPosition(),
+			    	feeling: actualFeeling.id,
+			    	marker: marker
+			    });
 
-				    $(".polylineSelectUnselected").removeClass("polylineSelectUnselected").addClass("polylineSelectSelected");
-				    $(".polygonSelectSelected").removeClass("polygonSelectSelected").addClass("polygonSelectUnselected");
-				    $(".noSelectSelected").removeClass("noSelectSelected").addClass("noSelectUnselected");
-				    $(".pointSelectSelected").addClass("pointSelectUnselected").removeClass("pointSelectSelected");
-				}
-			});
-			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polylineSelect.get(0));
+			    tId++;
+    			tIdToMarkers["t" + tId] = selected.points[selected.points.length-1];
 
-			$pointSelect = $("<div>",
-			{
-				id: "pointSelect",
-				class: "pointSelectSelected",
-				click: function() {
-				    selectionMode = POINTS;
-				    actualPolyline = undefined;
-				    actualPolygon = undefined;
-
-				    $(".polylineSelectSelected").removeClass("polylineSelectSelected").addClass("polylineSelectUnselected");
-				    $(".polygonSelectSelected").removeClass("polygonSelectSelected").addClass("polygonSelectUnselected");
-				    $(".noSelectSelected").removeClass("noSelectSelected").addClass("noSelectUnselected");
-				    $(".pointSelectUnselected").addClass("pointSelectSelected").removeClass("pointSelectUnselected");
-				  }
-			});
-			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($pointSelect.get(0));
+		        google.maps.event.addListener(marker, 'click', function() {
+			    	var infoWindow = new google.maps.InfoWindow();
+			    	infoWindow.setContent("<textarea id='t" + tId + "'>" + (selected.points[selected.points.length-1].text ? selected.points[selected.points.length-1].text : "") + "</textarea><div style='text-align:right'><button class='saveCommentButton'>Uložit</button></div>");
+			    	infoWindow.open(map, this);
+		        });
+		      }
+		    });
 
 			$("#save").click(function() {
 			  $.post("save", exportJson(), function(data) {

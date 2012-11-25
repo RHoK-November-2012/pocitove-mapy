@@ -29,16 +29,21 @@
     };
     map = new google.maps.Map(document.getElementById("map"), myOptions);
 
-    google.maps.event.addListener(map, 'click', function(event) {
-      addMarker(event.latLng);
-    });
-
     $(".saveCommentButton").live("click", function() {
       $ta = $(this).parent().parent().find("textarea");
       tIdToMarkers[$ta.attr("id")].text = $ta.val();
     });
 
     $.getJSON("shapes", function(data) {
+      for (var i=0; i<data.length; i++) {
+        submit = data[i];
+        if (submit.shapes.points)
+        {
+          for (var j=0; j<submit.shapes.points.length; j++){
+            point = submit.shapes.points[j];
+          }
+        }
+      }
       console.log(data);
     });
 
@@ -66,88 +71,6 @@ var actualFeeling = {
 
 tIdToMarkers = {};
 tId = 0;
-
-function addMarker(location) {
-  if (selectionMode === POINTS)
-  {
-    var marker = new google.maps.Marker({
-      position: location,
-      map: map,
-      clickable: true,
-      draggable: true,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
-        fillColor: actualFeeling.color,
-        fillOpacity: 0.5,
-        strokeColor: "#000000",
-        strokeWeight: 1,
-        clickable: true,
-        draggable: true
-      }
-    });
-    var pointO = {
-      location: location,
-      feeling: actualFeeling.id,
-      marker: marker
-    };
-
-    tId++;
-    tIdToMarkers["t" + tId] = pointO;
-
-    var infoWindow = new google.maps.InfoWindow();
-    google.maps.event.addListener(marker, "click", function() {
-      infoWindow.setContent("<textarea id='t" + tId + "'>" + (pointO.text ? pointO.text : "") + "</textarea><div style='text-align:right'><button class='saveCommentButton'>Uložit</button></div>");
-      infoWindow.open(map, this);
-    });
-
-    selected.points.push(pointO);
-  }
-  else if (selectionMode === POLYLINES)
-  {
-    if (actualPolyline == undefined)
-    {
-      polyline = new google.maps.Polyline({
-        path: [ location ],
-        strokeColor: actualFeeling.color,
-        map: map
-      });
-      selected.polylines.push({
-        path: [ location ],
-        feeling: actualFeeling.id,
-        polyline: polyline
-      });
-      actualPolyline = selected.polylines[selected.polylines.length-1];
-    }
-    else
-    {
-      actualPolyline.path.push(location);
-      actualPolyline.polyline.setPath(actualPolyline.path);
-    }
-  }
-  else if (selectionMode === POLYGONS)
-  {
-    if (actualPolygon == undefined)
-    {
-      polygon = new google.maps.Polygon({
-        path: [[location]],
-        strokeColor: actualFeeling.color,
-        map: map
-      });
-      selected.polygons.push({
-        path: [location],
-        feeling: actualFeeling.id,
-        polygon: polygon
-      });
-      actualPolygon = selected.polygons[selected.polygons.length-1];
-    }
-    else
-    {
-      actualPolygon.path.push(location);
-      actualPolygon.polygon.setPath([actualPolygon.path]);
-    }
-  }
-}
 
 function setFeeling(i, color) {
   actualFeeling = {
@@ -207,8 +130,8 @@ function exportShapes() {
               }
             }),
             feeling: aThing.feeling,
-            text: aThing.text ? aThing.text : "",
-            color: model.feelings[aThing.feeling].color
+            color: model.feelings[aThing.feeling].color,
+            text: aThing.text ? aThing.text : ""
         });
       }
     }
