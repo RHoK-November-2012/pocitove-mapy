@@ -39,22 +39,109 @@
 					    clickable: true,
 					},
 				},
-				polygonOption: {
-					fillColor: "<%= feeling.color %>",
+				polygonOptions: {
+					fillColor: "",
 				    fillOpacity: 0.5,
-				    strokeColor: "<%= feeling.color %>",
+				    strokeColor: "",
 				    strokeWeight: 1,
 				    clickable: true,
 				},
 				polylineOptions: {
-					fillColor: "<%= feeling.color %>",
+					fillColor: "",
 				    fillOpacity: 0.5,
-				    strokeColor: "<%= feeling.color %>",
-				    strokeWeight: 1,
+				    strokeColor: "",
+				    strokeWeight: 2,
 				    clickable: true,
 				}
 			});
 			drawingManager.setMap(map);
+
+			var points = [<%- points %>];
+			var lines = [<%- lines %>];
+			var polygons = [<%- polygons %>];
+
+			for (var i = 0; i < points.length; i++) {
+				var f = function () {
+					var point = points[i];
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(points[i]['lat'], points[i]['lng']),
+						map: map,
+						icon: {
+							path: google.maps.SymbolPath.CIRCLE,
+				            scale: 5,
+				            fillColor: points[i]['color'],
+				            fillOpacity: 0.5,
+				            strokeColor: points[i]['color'],
+				            strokeWeight: 0,
+				            clickable: true,
+						},
+						title: points[i]['text'],
+					});
+
+					google.maps.event.addListener(marker, 'click', function () {
+						var infoWindow = new google.maps.InfoWindow();
+						infoWindow.setContent(point['text']);
+						infoWindow.open(map, this);
+					});
+				};
+				f();
+			}
+
+			for (var i = 0; i < lines.length; i++) {
+				var f = function () {
+					var line = lines[i];
+					var path = [];
+					for (var j = 0; j < line['path'].length; j++) {
+						path.push(new google.maps.LatLng(line['path'][j]['lat'], line['path'][j]['lng']));
+					}
+					var polyline = new google.maps.Polyline({
+						path: path,
+						strokeColor: line['color'],
+			          	strokeOpacity: 1.0,
+			          	strokeWeight: 3
+					});
+					polyline.setMap(map);
+
+					google.maps.event.addListener(polyline, 'click', function (event) {
+						var marker = new google.maps.Marker({
+							position: event.latLng,
+						});
+						var infoWindow = new google.maps.InfoWindow();
+						infoWindow.setContent(line['text']);
+						infoWindow.open(map, marker);
+					});
+				};
+				f();
+			}
+
+			for (var i = 0; i < polygons.length; i++) {
+				var f = function () {
+					var polygon = polygons[i];
+					var path = [];
+					for (var j = 0; j < polygon['path'].length; j++) {
+						path.push(new google.maps.LatLng(polygon['path'][j]['lat'], polygon['path'][j]['lng']));
+					}
+					var gpolygon = new google.maps.Polygon({
+						paths: path,
+						strokeColor: polygon['color'],
+			          	strokeOpacity: 1.0,
+						fillColor: polygon['color'],
+			          	fillOpacity: 0.1,
+			          	strokeWeight: 0
+					});
+					gpolygon.setMap(map);
+
+					google.maps.event.addListener(gpolygon, 'click', function (event) {
+						var marker = new google.maps.Marker({
+							position: event.latLng,
+						});
+						var infoWindow = new google.maps.InfoWindow();
+						infoWindow.setContent(polygon['text']);
+						infoWindow.open(map, marker);
+					});
+				};
+				f();
+			}
 
 			google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
 		      if(event.type == google.maps.drawing.OverlayType.POLYLINE) {
@@ -139,14 +226,14 @@
 								fillColor: "<%= feeling.color %>",
 							    fillOpacity: 0.5,
 							    strokeColor: "<%= feeling.color %>",
-							    strokeWeight: 3,
+							    strokeWeight: 1,
 							    clickable: true,
 							},
 							polylineOptions: {
 								fillColor: "<%= feeling.color %>",
 							    fillOpacity: 0.5,
 							    strokeColor: "<%= feeling.color %>",
-							    strokeWeight: 3,
+							    strokeWeight: 2,
 							    clickable: true,
 							}
 						});
