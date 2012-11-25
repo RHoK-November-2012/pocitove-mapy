@@ -116,14 +116,42 @@ span.help-inline {
   height: 100px;
 }
 
+#noSelect
+{
+  width: 32px;
+  height: 32px;
+  padding: 10px;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.noSelectSelected
+{
+  background-image: url('/img/Bsd.png');
+}
+
+.noSelectUnselected
+{
+  background-image: url('/img/Bsu.png');
+}
+
 #pointSelect
 {
   width: 32px;
   height: 32px;
   padding: 10px;
-  background-image: url('/img/icon-point.png');
   background-position: center center;
   background-repeat: no-repeat;
+}
+
+.pointSelectSelected
+{
+  background-image: url('/img/Bmd.png');
+}
+
+.pointSelectUnselected
+{
+  background-image: url('/img/Bmu.png');
 }
 
 #polylineSelect
@@ -131,9 +159,18 @@ span.help-inline {
   width: 32px;
   height: 32px;
   padding: 10px;
-  background-image: url('/img/icon-polyline.png');
   background-position: center center;
   background-repeat: no-repeat;
+}
+
+.polylineSelectSelected
+{
+  background-image: url('/img/Bld.png');
+}
+
+.polylineSelectUnselected
+{
+  background-image: url('/img/Blu.png');
 }
 
 #polygonSelect
@@ -141,9 +178,18 @@ span.help-inline {
   width: 32px;
   height: 32px;
   padding: 10px;
-  background-image: url('/img/icon-polygon.png');
   background-position: center center;
   background-repeat: no-repeat;
+}
+
+.polygonSelectSelected
+{
+  background-image: url('/img/Bpd.png');
+}
+
+.polygonSelectUnselected
+{
+  background-image: url('/img/Bpu.png');
 }
 
 .feelingColorBox

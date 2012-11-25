@@ -284,25 +284,34 @@ function setFeeling(i, color) {
 };
 
 function exportJson() {
-  var expo = new Object();
-  var whats = ["points", "polylines", "polygons"];
-  for (what in whats)
+  return {
+    shapes: exportShapes(),
+    answers: exportAnswers()
+  };
+}
+
+function exportShapes() {
+  var shapes = new Object();
+  var shapeNames = ["points", "polylines", "polygons"];
+  for (shapeName in shapeNames)
   {
-    what = whats[what];
-    expo[what] = [];
-    for (aThing in selected[what])
+    shapeName = shapeNames[shapeName];
+    shapes[shapeName] = [];
+    for (aThing in selected[shapeName])
     {
-      aThing = selected[what][aThing];
-      if (what === "points")
+      aThing = selected[shapeName][aThing];
+      if (shapeName === "points")
       {
-        expo[what].push({
+        shapes[shapeName].push({
           lat: aThing.location.lat(),
-          lng: aThing.location.lng()
+          lng: aThing.location.lng(),
+          text: aThing.text,
+          color: aThing.color
         });
       }
       else
       {
-        expo[what].push(aThing.path.map(function (o) {
+        shapes[shapeName].push(aThing.path.map(function (o) {
           return {
             lat: o.lat(),
             lng: o.lng()
@@ -311,5 +320,21 @@ function exportJson() {
       }
     }
   }
-  return expo;
+  return shapes;
+}
+
+function exportAnswers() {
+  answers = new Object();
+  for (var i=0; i<model.criteria.length; i++)
+  {
+    if (model.criteria.type === "text")
+    {
+      answers[i] = $("criterion" + i).val();
+    }
+    else
+    {
+      answers[i] = $("criterion" + i).val();
+    }
+  }
+  return answers;
 }

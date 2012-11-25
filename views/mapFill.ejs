@@ -7,6 +7,7 @@
 	</div>
 </div>
 <% } else { %>
+	<script type="text/javascript">window.model = <%- JSON.stringify(model) %>;</script>
 	<h1><%= model.title %></h1>
 	<div class="row">
 		<div class="span12 feelings">
@@ -41,9 +42,9 @@
 				<p><%= criterion.text %>
 				<div>
 					<% if (criterion.type === "text") { %>
-						<textarea name="criterion<%=i%>"></textarea>
+						<textarea id="criterion<%=i%>"></textarea>
 					<% } else { %>
-						<select name="criterion<%=i%>">
+						<select id="criterion<%=i%>">
 							<% for (var j=0; j<criterion.options.length; j++) { %>
 							<option value="<%=j%>"><%=criterion.options[j]%></option>
 							<% } %>
@@ -63,57 +64,60 @@
 				lng: <%= model.latlon[1] %>
 			}, <%= model.zoom %>);
 
-			$pointSelect = $("<div>",
-			{
-				id: "pointSelect",
-				class: "sel",
-				click: function() {
-				    selectionMode = POINTS;
-				    actualPolyline = undefined;
-				    actualPolygon = undefined;
-
-				    $(".sel").removeClass("sel").addClass("unsel");
-				    $("#pointSelect").addClass("sel").removeClass("unsel");
-				  }
-			});
-			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($pointSelect.get(0));
-
-			$polylineSelect = $("<div>",
-			{
-				id: "polylineSelect",
-				class: "unsel",
-				click: function() {
-					selectionMode = POLYLINES;
-				    actualPolyline = undefined;
-				    actualPolygon = undefined;
-
-				    $(".sel").removeClass("sel").addClass("unsel");
-				    $("#polylineSelect").addClass("sel").removeClass("unsel");
-				}
-			});
-			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polylineSelect.get(0));
-
 			$polygonSelect = $("<div>",
 			{
 				id: "polygonSelect",
-				class: "unsel",
+				class: "polygonSelectUnselected",
 				click: function() {
 				    selectionMode = POLYGONS;
 				    actualPolyline = undefined;
 				    actualPolygon = undefined;
 
-				    $(".sel").removeClass("sel").addClass("unsel");
-				    $("#polygonSelect").addClass("sel").removeClass("unsel");
+				    $(".polylineSelectSelected").removeClass("polylineSelectSelected").addClass("polylineSelectUnselected");
+				    $(".polygonSelectUnselected").removeClass("polygonSelectUnselected").addClass("polygonSelectSelected");
+				    $(".noSelectSelected").removeClass("noSelectSelected").addClass("noSelectUnselected");
+				    $(".pointSelectSelected").addClass("pointSelectUnselected").removeClass("pointSelectSelected");
 			    },
 			    html: "<div></div>"
 			});
 			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polygonSelect.get(0));
 
+			$polylineSelect = $("<div>",
+			{
+				id: "polylineSelect",
+				class: "polylineSelectUnselected",
+				click: function() {
+					selectionMode = POLYLINES;
+				    actualPolyline = undefined;
+				    actualPolygon = undefined;
+
+				    $(".polylineSelectUnselected").removeClass("polylineSelectUnselected").addClass("polylineSelectSelected");
+				    $(".polygonSelectSelected").removeClass("polygonSelectSelected").addClass("polygonSelectUnselected");
+				    $(".noSelectSelected").removeClass("noSelectSelected").addClass("noSelectUnselected");
+				    $(".pointSelectSelected").addClass("pointSelectUnselected").removeClass("pointSelectSelected");
+				}
+			});
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polylineSelect.get(0));
+
+			$pointSelect = $("<div>",
+			{
+				id: "pointSelect",
+				class: "pointSelectSelected",
+				click: function() {
+				    selectionMode = POINTS;
+				    actualPolyline = undefined;
+				    actualPolygon = undefined;
+
+				    $(".polylineSelectSelected").removeClass("polylineSelectSelected").addClass("polylineSelectUnselected");
+				    $(".polygonSelectSelected").removeClass("polygonSelectSelected").addClass("polygonSelectUnselected");
+				    $(".noSelectSelected").removeClass("noSelectSelected").addClass("noSelectUnselected");
+				    $(".pointSelectUnselected").addClass("pointSelectSelected").removeClass("pointSelectUnselected");
+				  }
+			});
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($pointSelect.get(0));
+
 			$("#save").click(function() {
-			  $.post("save",
-			    {
-			      "shapes": exportJson()
-			    }, function(data) {
+			  $.post("save", exportJson(), function(data) {
 			      console.log(data);
 			    });
 			});

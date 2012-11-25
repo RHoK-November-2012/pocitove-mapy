@@ -46,7 +46,8 @@ exports.save = function(req, res) {
 		map: req.params.mapId,
 		dateTime: new Date(),
 		ip: req.connection.remoteAddress,
-		shapes: req.body.shapes
+		shapes: req.body.shapes,
+		answers: req.body.answers
 	}, function() {
 		res.send({
 			result: "ok"
