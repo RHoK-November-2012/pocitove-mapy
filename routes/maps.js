@@ -62,16 +62,48 @@ exports.show = function(req, res) {
 };
 
 // /maps/:mapId/fill
-exports.fill = function(req, res) {
-	maps.findById(req.params.mapId, function (err, map) {
-		res.render('mapFill', {
-			title: 'Vyplňování mapy ' + map.title,
-        	page: 'mapFill',
-        	user: req.session['user'],
-        	mapId: req.params.mapId,
-        	model: map
+exports.fill = function(req, res) {fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
+        var points = [];
+        var lines = [];
+        var polygons = [];
+
+        for (var i = 0; i < fs.length; i++) {
+            if ('points' in fs[i]['shapes']) {
+                for (var j = 0; j < fs[i]['shapes']['points'].length; j++) {
+                    points.push(JSON.stringify(fs[i]['shapes']['points'][j]));
+                }
+            }
+        }
+
+        for (var i = 0; i < fs.length; i++) {
+            if ('polylines' in fs[i]['shapes']) {
+                for (var j = 0; j < fs[i]['shapes']['polylines'].length; j++) {
+                    lines.push(JSON.stringify(fs[i]['shapes']['polylines'][j]));
+                }
+            }
+        }
+
+        for (var i = 0; i < fs.length; i++) {
+            if ('polygons' in fs[i]['shapes']) {
+                for (var j = 0; j < fs[i]['shapes']['polygons'].length; j++) {
+                    polygons.push(JSON.stringify(fs[i]['shapes']['polygons'][j]));
+                }
+            }
+        }
+
+    	maps.findById(req.params.mapId, function (err, map) {
+    		res.render('mapFill', {
+    			title: 'Vyplňování mapy ' + map.title,
+            	page: 'mapFill',
+            	user: req.session['user'],
+            	mapId: req.params.mapId,
+            	model: map,
+                points: points,
+                lines: lines,
+                polygons: polygons,
+        	});
     	});
-	});
+    });
 };
 
 // /maps/:mapId/shapes
