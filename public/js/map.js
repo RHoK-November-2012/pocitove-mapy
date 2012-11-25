@@ -169,15 +169,33 @@ var selectionMode = POINTS;
 var actualPolyline = undefined;
 var actualPolygon = undefined;
 
+var actualFeeling = {
+  id: undefined,
+  color: undefined
+}
+
 function addMarker(location) {
   if (selectionMode === POINTS)
   {
+    // thanks to http://stackoverflow.com/questions/7095574/google-maps-api-3-custom-marker-color-for-default-dot-marker
+    var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + actualFeeling.color.substring(1),
+        new google.maps.Size(21, 34),
+        new google.maps.Point(0,0),
+        new google.maps.Point(10, 34));
+    var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+        new google.maps.Size(40, 37),
+        new google.maps.Point(0, 0),
+        new google.maps.Point(12, 35));
+
     marker = new google.maps.Marker({
       position: location,
-      map: map
+      map: map,
+      icon: pinImage,
+      shadow: pinShadow
     });
     selected.points.push({
       location: location,
+      feeling: actualFeeling.id,
       marker: marker
     });
   }
@@ -187,11 +205,12 @@ function addMarker(location) {
     {
       polyline = new google.maps.Polyline({
         path: [ location ],
-        strokeColor: "blue",
+        strokeColor: actualFeeling.color,
         map: map
       });
       selected.polylines.push({
         path: [ location ],
+        feeling: actualFeeling.id,
         polyline: polyline
       });
       actualPolyline = selected.polylines[selected.polylines.length-1];
@@ -208,11 +227,12 @@ function addMarker(location) {
     {
       polygon = new google.maps.Polygon({
         path: [[location]],
-        strokeColor: "red",
+        strokeColor: actualFeeling.color,
         map: map
       });
       selected.polygons.push({
         path: [location],
+        feeling: actualFeeling.id,
         polygon: polygon
       });
       actualPolygon = selected.polygons[selected.polygons.length-1];
@@ -223,13 +243,14 @@ function addMarker(location) {
       actualPolygon.polygon.setPath([actualPolygon.path]);
     }
   }
-
-  updateJsonView();
 }
 
-function updateJsonView() {
-  $("#jsonView").text(JSON.stringify(exportJson()));
-}
+function setFeeling(i, color) {
+  actualFeeling = {
+    id: i,
+    color: color
+  };
+};
 
 function exportJson() {
   var expo = new Object();

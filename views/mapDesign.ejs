@@ -147,6 +147,8 @@ $(document).ready(function() {
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+        $("#latlon").val(map.getCenter().toString());
+        $("#zoom").val(map.getZoom());
     }
 
     initialize();
