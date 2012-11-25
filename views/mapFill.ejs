@@ -9,10 +9,25 @@
 <% } else { %>
 	<h1><%= model.title %></h1>
 	<div class="row">
-		<div>
+		<div class="feelings">
 			<% for (var i=0; i<model.feelings.length; i++) { feeling=model.feelings[i]; %>
-				
+				<div class="btn" id="feeling<%=i%>">
+					<div style="background-color: <%= feeling.color %>; width: 1em; height: 0.8em; display: inline-block;"> </div>
+					<%= feeling.text %>
+				</div>
+				<script type="text/javascript">
+					$("#feeling<%=i%>").click(function(){
+						setFeeling(<%=i%>, "<%= feeling.color %>");
+						$(".feelings .btn").removeClass("active");
+						$("#feeling<%=i%>").addClass("active");
+					});
+				</script>
 			<% } %>
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$("#feeling0").click();
+				});
+			</script>
 		</div>
 		<button id="pointSelect" class="sel">Misto</button>
 	  	<button id="polylineSelect" class="unsel">Klikata cara</button>
