@@ -39,6 +39,16 @@
     });
 
     $.getJSON("shapes", function(data) {
+      for (int i=0; i<data.length; i++) {
+        submit = data[i];
+        if (submit.shapes.points)
+        {
+          for (int j=0; j<submit.shapes.points.length; j++){
+            point = submit.shapes.points[j];
+            
+          }
+        }
+      }
       console.log(data);
     });
 
@@ -207,6 +217,7 @@ function exportShapes() {
               }
             }),
             feeling: aThing.feeling,
+            color: model.feelings[aThing.feeling].color,
             text: aThing.text ? aThing.text : ""
         });
       }
