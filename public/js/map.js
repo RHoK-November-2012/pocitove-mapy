@@ -2,10 +2,10 @@
   var markersArray = [];
 
 //49.146991,14.174337&spn=0.017236,0.038581&t=m&z=15
-  function initialize() {
+  function initialize_map(latlng, zoom) {
     var myOptions = {
-      zoom: 15,
-      center: new google.maps.LatLng(49.146991, 14.174336),
+      zoom: zoom,
+      center: new google.maps.LatLng(latlng.lat, latlng.lng),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
       streetViewControl: false,
@@ -261,41 +261,3 @@ function exportJson() {
   }
   return expo;
 }
-
-$(document).ready(function () {
-  initialize();
-
-  $("#pointSelect").click(function() {
-    selectionMode = POINTS;
-    actualPolyline = undefined;
-    actualPolygon = undefined;
-
-    $(".sel").removeClass("sel").addClass("unsel");
-    $("#pointSelect").addClass("sel").removeClass("unsel");
-  });
-  $("#polylineSelect").click(function() {
-    selectionMode = POLYLINES;
-    actualPolyline = undefined;
-    actualPolygon = undefined;
-    
-    $(".sel").removeClass("sel").addClass("unsel");
-    $("#polylineSelect").addClass("sel").removeClass("unsel");
-  });
-  $("#polygonSelect").click(function() {
-    selectionMode = POLYGONS;
-    actualPolyline = undefined;
-    actualPolygon = undefined;
-    
-    $(".sel").removeClass("sel").addClass("unsel");
-    $("#polygonSelect").addClass("sel").removeClass("unsel");
-  });
-
-  $("#save").click(function() {
-    $.post("save",
-      {
-        "shapes": exportJson()
-      }, function(data) {
-        console.log(data);
-      });
-  });
-});

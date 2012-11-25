@@ -47,7 +47,9 @@ app.get('/maps', maps.list);
 app.get('/maps/:mapId/show', maps.show);
 app.get('/maps/:mapId/fill', maps.fill);
 app.post('/maps/:mapId/save', maps.save);
+
 app.get('/maps/design', maps.design);
+app.get('/maps/:mapId/edit', maps.edit);
 app.post('/maps/create', maps.create);
 
 http.createServer(app).listen(app.get('port'), function(){

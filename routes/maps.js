@@ -16,7 +16,7 @@ exports.list = function(req, res) {
 
 // /maps/:mapId/show
 exports.show = function(req, res) {
-	maps.findById(req.params.mapId, function (map) {
+	maps.findById(req.params.mapId, function (err, map) {
 		res.render('mapShow', {
 			title: 'Prohlížení mapy',
 			page: 'mapShow',
@@ -29,11 +29,12 @@ exports.show = function(req, res) {
 
 // /maps/:mapId/fill
 exports.fill = function(req, res) {
-	maps.findById(req.params.mapId, function (map) {
+	maps.findById(req.params.mapId, function (err, map) {
 		res.render('mapFill', {
-			title: 'Vyplňování mapy',
+			title: 'Vyplňování mapy ' + map.title,
         	page: 'mapFill',
         	user: req.session['user'],
+        	mapId: req.params.mapId,
         	model: map
     	});
 	});
@@ -64,11 +65,12 @@ exports.design = function(req, res){
 
 // /maps/:mapId/edit
 exports.edit = function(req, res) {
-	maps.findById(req.params.mapId, function (map) {
+	maps.findById(req.params.mapId, function (err, map) {
 		res.render('mapDesign', {
 			title: 'Úprava existující mapy',
 			page: 'mapDesign',
 			user: req.session['user'],
+			mapId: req.params.mapId,
 			model: map
 		});
 	});
