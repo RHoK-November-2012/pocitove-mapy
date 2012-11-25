@@ -11,8 +11,8 @@
 	<div class="row">
 		<div class="span12 feelings">
 			<% for (var i=0; i<model.feelings.length; i++) { feeling=model.feelings[i]; %>
-				<div class="btn" id="feeling<%=i%>">
-					<div style="background-color: <%= feeling.color %>; width: 1em; height: 0.8em; display: inline-block;"> </div>
+				<div class="btn feelingBox" id="feeling<%=i%>">
+					<div class="feelingColorBox" style="background-color: <%= feeling.color %>;"> </div>
 					<%= feeling.text %>
 				</div>
 				<script type="text/javascript">
@@ -31,23 +31,28 @@
 
 			<div id="map">
 			</div>
-			
+		</div>
+	</div>
+	<div class="row criteria">
+		<div class="span6 offset3">
 			<h2>Ještě pár drobností...</h2>
 
 			<% for (var i=0; i<model.criteria.length; i++) { criterion = model.criteria[i]; %>
 				<p><%= criterion.text %>
-				<% if (criterion.type === "text") { %>
-					<textarea name="criterion<%=i%>"></textarea>
-				<% } else { %>
-					<select name="criterion<%=i%>">
-						<% for (var j=0; j<criterion.options.length; j++) { %>
-						<option value="<%=j%>"><%=criterion.options[j]%></option>
-						<% } %>
-					</select>
-				<% }; %>
+				<div>
+					<% if (criterion.type === "text") { %>
+						<textarea name="criterion<%=i%>"></textarea>
+					<% } else { %>
+						<select name="criterion<%=i%>">
+							<% for (var j=0; j<criterion.options.length; j++) { %>
+							<option value="<%=j%>"><%=criterion.options[j]%></option>
+							<% } %>
+						</select>
+					<% }; %>
+				</div>
 			<% }; %>
 
-		  	<button id="save">Hotovo!</button>
+		  	<button class="save btn btn-success action">Hotovo!</button>
 		</div>
 	</div>
 
@@ -61,6 +66,7 @@
 			$pointSelect = $("<div>",
 			{
 				id: "pointSelect",
+				class: "sel",
 				click: function() {
 				    selectionMode = POINTS;
 				    actualPolyline = undefined;
@@ -75,6 +81,7 @@
 			$polylineSelect = $("<div>",
 			{
 				id: "polylineSelect",
+				class: "unsel",
 				click: function() {
 					selectionMode = POLYLINES;
 				    actualPolyline = undefined;
@@ -89,6 +96,7 @@
 			$polygonSelect = $("<div>",
 			{
 				id: "polygonSelect",
+				class: "unsel",
 				click: function() {
 				    selectionMode = POLYGONS;
 				    actualPolyline = undefined;

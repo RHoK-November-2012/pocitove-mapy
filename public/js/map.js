@@ -1,14 +1,14 @@
   var map;
   var markersArray = [];
 
-//49.146991,14.174337&spn=0.017236,0.038581&t=m&z=15
   function initialize_map(latlng, zoom) {
     var myOptions = {
       zoom: zoom,
       center: new google.maps.LatLng(latlng.lat, latlng.lng),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
-      streetViewControl: false,
+      streetViewControl: false
+      ,
       styles: [
         {
           featureType: "landscape.natural",
@@ -105,7 +105,15 @@
           stylers: [
             { color: "#eeeeee" }
           ]
-        },{
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text",
+          stylers: [
+            { visibility: "off" }
+          ]
+        },
+        {
           featureType: "road",
           elementType: "geometry.stroke",
           stylers: [
@@ -154,6 +162,11 @@
       addMarker(event.latLng);
     });
 
+    $(".saveCommentButton").live("click", function() {
+      $ta = $(this).parent().parent().find("textarea");
+      tIdToMarkers[$ta.attr("id")].text = $ta.val();
+    });
+
     return map;
   }
 
@@ -176,6 +189,9 @@ var actualFeeling = {
   color: undefined
 }
 
+tIdToMarkers = {};
+tId = 0;
+
 function addMarker(location) {
   if (selectionMode === POINTS)
   {
@@ -189,17 +205,30 @@ function addMarker(location) {
         new google.maps.Point(0, 0),
         new google.maps.Point(12, 35));
 
-    marker = new google.maps.Marker({
+    var marker = new google.maps.Marker({
       position: location,
       map: map,
       icon: pinImage,
-      shadow: pinShadow
+      shadow: pinShadow,
+      clickable: true,
+      draggable: true
     });
-    selected.points.push({
+    var pointO = {
       location: location,
       feeling: actualFeeling.id,
       marker: marker
+    };
+
+    tId++;
+    tIdToMarkers["t" + tId] = pointO;
+
+    var infoWindow = new google.maps.InfoWindow();
+    google.maps.event.addListener(marker, "click", function() {
+      infoWindow.setContent("<textarea id='t" + tId + "'>" + (pointO.text ? pointO.text : "") + "</textarea><div style='text-align:right'><button class='saveCommentButton'>Uložit</button></div>");
+      infoWindow.open(map, this);
     });
+
+    selected.points.push(pointO);
   }
   else if (selectionMode === POLYLINES)
   {

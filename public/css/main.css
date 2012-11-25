@@ -1,9 +1,12 @@
 #map {
-  position: relative;
   width: 100%;
   height: 600px;
   background-color: white;
   border: 1px solid black;
+}
+
+img {
+  max-width: none !important;
 }
 
 #panel
@@ -132,4 +135,19 @@ span.help-inline {
   width: 32px;
   height: 32px;
   background-image: url('/img/icon-polygon.png');
+}
+
+.feelingColorBox
+{
+  width: 1em;
+  height: 0.8em;
+  display: inline-block;
+}
+
+.save
+{
+  display: block;
+  margin-left: auto; margin-right: auto;
+  width: 180px;
+  height: 50px;
 }
