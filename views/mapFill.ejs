@@ -9,7 +9,7 @@
 <% } else { %>
 	<h1><%= model.title %></h1>
 	<div class="row">
-		<div class="span8 feelings">
+		<div class="span12 feelings">
 			<% for (var i=0; i<model.feelings.length; i++) { feeling=model.feelings[i]; %>
 				<div class="btn" id="feeling<%=i%>">
 					<div style="background-color: <%= feeling.color %>; width: 1em; height: 0.8em; display: inline-block;"> </div>
@@ -29,14 +29,9 @@
 				});
 			</script>
 
-			<button id="pointSelect" class="sel">Misto</button>
-		  	<button id="polylineSelect" class="unsel">Klikata cara</button>
-		  	<button id="polygonSelect" class="unsel">Oblast</button>
-
-			<div id="map"></div>
-		</div>
-
-		<div class="criteria span4">
+			<div id="map">
+			</div>
+			
 			<h2>Ještě pár drobností...</h2>
 
 			<% for (var i=0; i<model.criteria.length; i++) { criterion = model.criteria[i]; %>
@@ -58,44 +53,62 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-			initialize_map({
+			map = initialize_map({
 				lat: <%= model.latlon[0] %>,
 				lng: <%= model.latlon[1] %>
 			}, <%= model.zoom %>);
 
-			  $("#pointSelect").click(function() {
-			    selectionMode = POINTS;
-			    actualPolyline = undefined;
-			    actualPolygon = undefined;
+			$pointSelect = $("<div>",
+			{
+				id: "pointSelect",
+				click: function() {
+				    selectionMode = POINTS;
+				    actualPolyline = undefined;
+				    actualPolygon = undefined;
 
-			    $(".sel").removeClass("sel").addClass("unsel");
-			    $("#pointSelect").addClass("sel").removeClass("unsel");
-			  });
-			  $("#polylineSelect").click(function() {
-			    selectionMode = POLYLINES;
-			    actualPolyline = undefined;
-			    actualPolygon = undefined;
+				    $(".sel").removeClass("sel").addClass("unsel");
+				    $("#pointSelect").addClass("sel").removeClass("unsel");
+				  }
+			});
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($pointSelect.get(0));
 
-			    $(".sel").removeClass("sel").addClass("unsel");
-			    $("#polylineSelect").addClass("sel").removeClass("unsel");
-			  });
-			  $("#polygonSelect").click(function() {
-			    selectionMode = POLYGONS;
-			    actualPolyline = undefined;
-			    actualPolygon = undefined;
+			$polylineSelect = $("<div>",
+			{
+				id: "polylineSelect",
+				click: function() {
+					selectionMode = POLYLINES;
+				    actualPolyline = undefined;
+				    actualPolygon = undefined;
 
-			    $(".sel").removeClass("sel").addClass("unsel");
-			    $("#polygonSelect").addClass("sel").removeClass("unsel");
-			  });
+				    $(".sel").removeClass("sel").addClass("unsel");
+				    $("#polylineSelect").addClass("sel").removeClass("unsel");
+				}
+			});
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polylineSelect.get(0));
 
-			  $("#save").click(function() {
-			    $.post("save",
-			      {
-			        "shapes": exportJson()
-			      }, function(data) {
-			        console.log(data);
-			      });
-			  });
+			$polygonSelect = $("<div>",
+			{
+				id: "polygonSelect",
+				click: function() {
+				    selectionMode = POLYGONS;
+				    actualPolyline = undefined;
+				    actualPolygon = undefined;
+
+				    $(".sel").removeClass("sel").addClass("unsel");
+				    $("#polygonSelect").addClass("sel").removeClass("unsel");
+			    },
+			    html: "<div></div>"
+			});
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push($polygonSelect.get(0));
+
+			$("#save").click(function() {
+			  $.post("save",
+			    {
+			      "shapes": exportJson()
+			    }, function(data) {
+			      console.log(data);
+			    });
+			});
 		});
 	</script>
 <% }; %>
