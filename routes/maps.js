@@ -102,7 +102,7 @@ exports.create = function(req, res) {
 	        var criterion = {
 	            text: req.body.criterion[i],
 	            type: req.body.criterion_type[i],
-	            options: req.body.criterion_values[i].split(/\s+/)
+	            options: req.body.criterion_values[i].split(/[\r\n]+/)
 	        };
 	        criteria.push(criterion);
 	    };
