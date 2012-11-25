@@ -59,7 +59,9 @@ exports.design = function(req, res){
 	res.render('mapDesign', {
 		title: 'Návrh nové mapy',
 		page: 'mapDesign',
-		user: req.session['user']
+		user: req.session['user'],
+        mapId: -1,
+        model: {},
 	});
 };
 
@@ -100,7 +102,7 @@ exports.create = function(req, res) {
 	        var criterion = {
 	            text: req.body.criterion[i],
 	            type: req.body.criterion_type[i],
-	            options: req.body.criterion_values[i].split(/\s+/)
+	            options: req.body.criterion_values[i].split(/[\r\n]+/)
 	        };
 	        criteria.push(criterion);
 	    };
