@@ -300,23 +300,29 @@ function exportShapes() {
     for (aThing in selected[shapeName])
     {
       aThing = selected[shapeName][aThing];
+      console.log(aThing);
       if (shapeName === "points")
       {
         shapes[shapeName].push({
           lat: aThing.location.lat(),
           lng: aThing.location.lng(),
           text: aThing.text,
-          color: aThing.color
+          feeling: aThing.feeling,
+          color: model.feelings[aThing.feeling].color
         });
       }
       else
       {
-        shapes[shapeName].push(aThing.path.map(function (o) {
-          return {
-            lat: o.lat(),
-            lng: o.lng()
-          }
-        }));
+        shapes[shapeName].push({
+            path: aThing.path.map(function (o) {
+              return {
+                lat: o.lat(),
+                lng: o.lng()
+              }
+            }),
+            feeling: aThing.feeling,
+            text: aThing.text ? aThing.text : ""
+        });
       }
     }
   }
