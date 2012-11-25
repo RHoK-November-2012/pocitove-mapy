@@ -66,19 +66,6 @@ tId = 0;
 function addMarker(location) {
   if (selectionMode === POINTS)
   {
-    // thanks to http://stackoverflow.com/questions/7095574/google-maps-api-3-custom-marker-color-for-default-dot-marker
-    var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + actualFeeling.color.substring(1),
-        new google.maps.Size(21, 34),
-        new google.maps.Point(0,0),
-        new google.maps.Point(10, 34));
-    var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
-        new google.maps.Size(40, 37),
-        new google.maps.Point(0, 0),
-        new google.maps.Point(12, 35));
-
-
-      
-
     var marker = new google.maps.Marker({
       position: location,
       map: map,
@@ -86,12 +73,13 @@ function addMarker(location) {
       draggable: true,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: 5,
-        fillColor: points[i]['color'],
+        scale: 10,
+        fillColor: actualFeeling.color,
         fillOpacity: 0.5,
-        strokeColor: points[i]['color'],
+        strokeColor: "#000000",
         strokeWeight: 1,
-        clickable: true
+        clickable: true,
+        draggable: true
       }
     });
     var pointO = {
@@ -165,8 +153,21 @@ function setFeeling(i, color) {
 };
 
 function exportJson() {
+  var shapes = exportShapes();
+  if (!shapes.points)
+  {
+    shapes.points = [];
+  };
+  if (!shapes.polylines)
+  {
+    shapes.polylines = [];
+  };
+  if (!shapes.polygons)
+  {
+    shapes.polygons = [];
+  };
   return {
-    shapes: exportShapes(),
+    shapes: ,
     answers: exportAnswers()
   };
 }
@@ -181,7 +182,6 @@ function exportShapes() {
     for (aThing in selected[shapeName])
     {
       aThing = selected[shapeName][aThing];
-      console.log(aThing);
       if (shapeName === "points")
       {
         shapes[shapeName].push({

@@ -118,7 +118,7 @@
 
 			$("#save").click(function() {
 			  $.post("save", exportJson(), function(data) {
-			      console.log(data);
+			      window.location.href = "show";
 			    });
 			});
 		});
