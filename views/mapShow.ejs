@@ -55,6 +55,32 @@ var mapOptions = {
 };
 map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
+var drawingManager = new google.maps.drawing.DrawingManager({
+	drawingMode: google.maps.drawing.OverlayType.MARKER,
+	drawingControl: true,
+	drawingControlOptions: {
+	position: google.maps.ControlPosition.TOP_CENTER,
+	drawingModes: [
+		google.maps.drawing.OverlayType.MARKER,
+		google.maps.drawing.OverlayType.POLYGON,
+		google.maps.drawing.OverlayType.POLYLINE,
+	]
+	},
+	markerOptions: {
+		icon: {
+			path: google.maps.SymbolPath.CIRCLE,
+		    scale: 5,
+		    fillColor: "#ff0000",
+		    fillOpacity: 0.5,
+		    strokeColor: "#ff0000",
+		    strokeWeight: 1,
+		    clickable: true,
+		},
+	},
+});
+drawingManager.setMap(map);
+
+
 var points = [<%- points %>];
 
 for (var i = 0; i < points.length; i++) {
