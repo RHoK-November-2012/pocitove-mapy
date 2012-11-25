@@ -20,8 +20,10 @@ exports.show = function(req, res) {
     fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
         var points = [];
         for (var i = 0; i < fs.length; i++) {
-            for (var j = 0; j < fs[i]['shapes']['points'].length; j++) {
-                points.push(JSON.stringify(fs[i]['shapes']['points'][j]));
+            if ('points' in fs[i]['shapes']) {
+                for (var j = 0; j < fs[i]['shapes']['points'].length; j++) {
+                    points.push(JSON.stringify(fs[i]['shapes']['points'][j]));
+                }
             }
         }
         maps.findById(req.params.mapId, function (err, map) {
