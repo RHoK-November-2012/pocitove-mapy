@@ -58,20 +58,30 @@ map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 var points = [<%- points %>];
 
 for (var i = 0; i < points.length; i++) {
-	var marker = new google.maps.Marker({
-		position: new google.maps.LatLng(points[i]['lat'], points[i]['lng']),
-		map: map,
-		icon: {
-			path: google.maps.SymbolPath.CIRCLE,
-            scale: 5,
-            fillColor: points[i]['color'],
-            fillOpacity: 0.5,
-            strokeColor: points[i]['color'],
-            strokeWeight: 1,
-            clickable: true,
-		},
-		title: points[i]['text'],
-	});
+	var f = function () {
+		var point = points[i];
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(points[i]['lat'], points[i]['lng']),
+			map: map,
+			icon: {
+				path: google.maps.SymbolPath.CIRCLE,
+	            scale: 5,
+	            fillColor: points[i]['color'],
+	            fillOpacity: 0.5,
+	            strokeColor: points[i]['color'],
+	            strokeWeight: 1,
+	            clickable: true,
+			},
+			title: points[i]['text'],
+		});
+
+		google.maps.event.addListener(marker, 'click', function () {
+			var infoWindow = new google.maps.InfoWindow();
+			infoWindow.setContent(point['text']);
+			infoWindow.open(map, this);
+		});
+	};
+	f();
 }
 });
 </script>
