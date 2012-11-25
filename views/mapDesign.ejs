@@ -47,7 +47,11 @@
                     </ul>
                     <div class="row">
                         <div class="span3">
+                            <% if ('feelings' in model) { %>
+                            <button type="button" class="btn btn-mini pull-right disabled" id="add_new_feeling_button" disabled="disabled">Přidat další pocit</button>
+                            <% } else { %>
                             <button type="button" class="btn btn-mini pull-right" id="add_new_feeling_button">Přidat další pocit</button>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -56,7 +60,11 @@
             <div class="control-group">
                 <label class="control-label" for="inputPublic">Mapa je veřejná:</label>
                 <div class="controls">
-                    <input type="checkbox" id="inputPublic" name="public" checked="true"/>
+                    <% if ('visible' in model) { %>
+                        <input type="checkbox" id="inputPublic" name="public" checked="<%=model['visible']%>"/>
+                    <% } else { %>
+                        <input type="checkbox" id="inputPublic" name="public" checked="true"/>
+                    <% } %>
                 </div>
             </div>
 
@@ -67,7 +75,12 @@
                         <div id="criterion_prepend"></div>
                     <div class="row">
                         <div class="span3">
+                            <% if ('criteria' in model) { %>
+                            <button type="button" class="btn btn-mini pull-right disabled" id="add_new_criterion_button" disabled="disabled">Přidat další otázku</button>
+                            <% } else { %>
                             <button type="button" class="btn btn-mini pull-right" id="add_new_criterion_button">Přidat další otázku</button>
+                            <% } %>
+
                         </div>
                     </div>
                     </ul>
@@ -77,19 +90,28 @@
             <div class="control-group">
                 <label class="control-label" for="inputDateFrom">Datum začátku:</label>
                 <div class="controls">
-                    <input type="date" name="start"/>
+                    <% if ('start' in model) { %>
+                        <input type="date" name="start" value="<%=new Date(model['start']).toISOString().substring(0,10)%>"/>
+                    <% } else { %>
+                        <input type="date" name="start"/>
+                    <% } %>
                 </div>
             </div>
 
             <div class="control-group">
                 <label class="control-label" for="inputDateFrom">Datum konce:</label>
                 <div class="controls">
-                    <input type="date" name="end"/>
+                    <% if ('end' in model) { %>
+                        <input type="date" name="end" value="<%=new Date(model['end']).toISOString().substring(0,10)%>"/>
+                    <% } else { %>
+                        <input type="date" name="end"/>
+                    <% } %>
                 </div>
             </div>
 
             <input type="hidden" name="latlon" id="latlon"></input>
             <input type="hidden" name="zoom" id="zoom"></input>
+            <input type="hidden" name="mapId" id="mapId" value="<%=mapId%>"></input>
 
             <div class="control-group">
                 <div class="controls">
@@ -109,18 +131,27 @@ var i = 0;
 var j = 0;
 var map;
 
-function new_feeling_item(i, color, feeling) {
+function new_feeling_item(i, color, feeling, disabled) {
+    var readonly = "";
+    var disabled_text = "";
+    if (disabled) {
+        disabled_text = 'disabled="disabled"';
+        readonly = 'readonly="readonly"';
+    }
     return '<li class="feeling_item"><div class="input-prepend input-append"> \
-    <input type="color" class="colorPicker btn" name="color[' + i + ']" value="'+ color +'"/> \
-    <input class="span3" name="feeling[' + i +']" type="text" placeholder="Na tomto místě..." value="' + feeling + '"> \
-    <button class="btn remove_feeling" type="button"><i class="icon-remove"/></button> \
+    <input type="color" class="colorPicker btn" name="color[' + i + ']" value="'+ color +'" ' +  readonly + '/> \
+    <input class="span3" name="feeling[' + i +']" type="text" placeholder="Na tomto místě..." value="' + feeling + '" ' + readonly + '> \
+    <button class="btn remove_feeling" type="button" ' + disabled_text + '><i class="icon-remove"/></button> \
     </div></li>';
 }
 
-function new_criterion_item(i, question, radio_text, list) {
+function new_criterion_item(i, question, radio_text, list, disabled) {
     var checked_text = "";
     var checked_select = "";
     var select_visibility = 'style="display: none"';
+    var readonly = "";
+    var disabled_text = "";
+
     if (radio_text) {
         checked_text = 'checked="true"';
     } else {
@@ -128,12 +159,17 @@ function new_criterion_item(i, question, radio_text, list) {
         select_visibility = "";
     }
 
+    if (disabled) {
+        disabled_text = 'disabled="disabled"';
+        readonly = 'readonly="readonly"';
+    }
+
     var criterion_item = '<li class="criterion_item"> \
-        <label class="input-append"><input type="text" name="criterion[' + i + ']" class="span5" placeholder="Otázka na uživatele." value="' + question + '"/><button class="btn remove_criterion" type="button"><i class="icon-remove"></i></button></label> \
-        <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + i +']" value="text" '+ checked_text +'>Uživatel musí vyplnit text</input></label> \
-        <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + i + ']" value="select" '+ checked_select + '>Uživatel vybírá z daných možností</input></label> \
+        <label class="input-append"><input type="text" name="criterion[' + i + ']" class="span5" placeholder="Otázka na uživatele." value="' + question + '" '+ readonly +'/><button class="btn remove_criterion" type="button" '+ disabled_text +'><i class="icon-remove"></i></button></label> \
+        <label class="radio inline"><input type="radio" class="nonradio_select" name="criterion_type[' + i +']" value="text" '+ checked_text +' ' + readonly + '>Uživatel musí vyplnit text</input></label> \
+        <label class="radio inline"><input type="radio" class="radio_select" name="criterion_type[' + i + ']" value="select" '+ checked_select + ' ' + readonly + '>Uživatel vybírá z daných možností</input></label> \
         <div class="select_list" ' + select_visibility + '> \
-            <hr><textarea rows="10" class="span3" name="criterion_values[' + i + ']">' + list + '</textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
+            <hr><textarea rows="5" class="span3" name="criterion_values[' + i + ']" ' + readonly + '>' + list + '</textarea><span class="help-inline">Vložte na každý řádek jednu možnost.</span> \
         </div> \
     </li>';
 
@@ -179,17 +215,52 @@ $(document).ready(function() {
     // Initialization of form.
     //
 
-    $("#feeling_prepend").prepend(new_feeling_item(i, "", ""));
-    $("#criterion_prepend").prepend(new_criterion_item(j, "", true, ""));
-    i++;
-    j++;
+    <% if ('feelings' in model) {
+        for (var ii = 0; ii < model['feelings'].length; ii++) {
+            var feeling = model['feelings'][ii];
+            var color = feeling['color'];
+            var text = feeling['text'];
+    %>
+        $("#feeling_prepend").append(new_feeling_item(i, "<%= color %>", "<%= text %>", true));
+        i++;
+    <%
+        }
+    } else { %>
+        $("#feeling_prepend").append(new_feeling_item(i, "", "", false));
+        i++;
+    <% } %>
+
+    <% if ('criteria' in model) {
+        for (var ii = 0; ii < model['criteria'].length; ii++) {
+            var criterion = model['criteria'][ii];
+            var text = criterion['text'];
+            var type = criterion['type'] == 'text';
+            var options = criterion['options'].join('\\n');
+    %>
+        $("#criterion_prepend").append(new_criterion_item(j, "<%=text%>", <%=type%>, "<%-options%>", true));
+        j++
+    <%
+        }
+    } else { %>
+        <% for (var jj = 0; jj < default_criteria.length; jj++) {
+            var default_criterion = default_criteria[jj];
+            var text = default_criterion['text'];
+            var type = default_criterion['type'] == 'text';
+            var options = default_criterion['options'].join('\\n');
+        %>
+            $("#criterion_prepend").append(new_criterion_item(j, "<%=text%>", <%=type%>, "<%-options%>", false));
+            j++
+        <% } %>
+        $("#criterion_prepend").append(new_criterion_item(j, "", true, "", false));
+        j++;
+    <% } %>
 
     //
     // Event handlers.
     //
 
     $("#add_new_feeling_button").click(function () {
-        $("#feeling_prepend").append(new_feeling_item(i, "#000000", ""));
+        $("#feeling_prepend").append(new_feeling_item(i, "#000000", "", false));
         i++;
     });
 
