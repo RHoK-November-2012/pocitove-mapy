@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Generátor testovacích dat pro Pocitové Mapy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map_canvas {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+      var map;
+      var maxZindex = google.maps.Marker.MAX_ZINDEX + 5000
+      var minZindex = maxZindex
+      var activeMarker // allow for removal by 'DEL'
+      var activeMarkerCandidate // allow for activating on 'Ctrl' up
+      var markers = []
+      var sampleCount = 40
+      var lastUsedRadius = 250
+      var ctrlKey // flag that ctrl key is being pressed
+      var detail // detail of selected circle
+      var pocitIdSelected
+      var postaveniSelected
+
+      var pocity = [
+        "-- vyberte pocit --",
+        "Tady se cítím dobře",
+        "Tady trávím volný čas a odpočívám",
+        "Tady se setkáváme",
+        "Tady je krásně",
+        "Místo je špatně využité",
+        "Tady se bojím",
+        "Tady se cítím špatně",
+        "Tady je to ošklivé"
+      ]
+      var pocitoveBarvy = [
+        "none",
+        "small_red",
+        "small_yellow",
+        "small_green",
+        "small_blue",
+        "small_purple",
+        "measle_brown",
+        "measle_grey",
+        "measle_white",
+        "measle_turquoise",
+      ]
+      var pocitoveBarvyRGB = [
+        "#000000",
+        "#ff6666",
+        "#ffff99",
+        "#99ff99",
+        "#9999ff",
+        "#ff99ff",
+        "#cc9966",
+        "#cccccc",
+        "#ffffff",
+        "#99ffff",
+      ]
+
+      var ekonomickePostaveni = [
+        "zaměstnanec",
+        "soukromý podnikatel",
+        "student",
+        "v domácnosti",
+        "důchodce",
+        "nezaměstnaný"
+      ]
+
+      function getMarkersJSON(markers) {
+        var data = []
+        for (var i = 0; i < markers.length; i++) {
+          data.push(markers[i].circleData)
+        }
+        return JSON.stringify(data)
+      }
+
+      function setActiveMarker(marker) {
+        if (marker == activeMarker) return
+        if(activeMarker) {
+          activeMarker.setOptions({strokeWeight: 0})
+          activeMarker.setEditable(false)
+        }
+        activeMarker = marker
+        if(activeMarker) {
+          var circleData = activeMarker.circleData
+          activeMarker.setOptions({strokeWeight: 2})
+          activeMarker.setEditable(true)
+          detail.style.backgroundColor = activeMarker.fillColor
+          detail.innerText = '' + circleData.sampleCount + ' ' + circleData.ekonomickePostaveni
+        } else {
+          detail.style.backgroundColor = null
+          detail.innerText = '--'
+        }
+      }
+
+      function placeCircle(center, radius, pocitId, postaveni, count) {
+        if (!pocitId || !postaveni) return
+
+        var circleOptions = {
+          strokeColor: pocitoveBarvyRGB[pocitId],
+          strokeOpacity: 0.8,
+          strokeWeight: 0,
+          fillColor: pocitoveBarvyRGB[pocitId],
+          fillOpacity: 0.35,
+          map: map,
+          center: center,
+          radius: radius,
+          zIndex: maxZindex++
+        };
+
+        circle = new google.maps.Circle(circleOptions);
+
+        // keep track of circle position and size
+        var circleData = {
+          center: {
+            lat: circle.getCenter().lat(),
+            lng: circle.getCenter().lng()
+          },
+          radius: circle.getRadius(),
+          pocitId: pocitId,
+          ekonomickePostaveni: postaveni,
+          sampleCount: count,
+        }
+        circle.circleData = circleData
+        markers.push(circle)
+        localStorage.circlePositions = getMarkersJSON(markers)
+
+        function fn() {
+          var c = circle
+          var d = circleData
+
+          circle.addListener("mouseover", function(ev) {
+            if (!ctrlKey) { 
+              setActiveMarker(c)
+            }
+            activeMarkerCandidate = c
+          }) 
+          circle.addListener("mouseout", function(ev) {
+            if (!ctrlKey) { 
+              if (c == activeMarker) setActiveMarker(null)
+            }
+            if (c == activeMarkerCandidate) activeMarkerCandidate = null
+          }) 
+          circle.addListener("click", function(ev) { 
+            if (ctrlKey) {
+              // create circle under the current circle
+              placeCircle(ev.latLng, lastUsedRadius, pocitIdSelected, postaveniSelected, sampleCount)
+              return
+            }
+
+            // push current marker down Z
+            minZindex = minZindex - 1; 
+            c.setOptions({zIndex: minZindex}); 
+          })
+
+          // keep track of changes
+          circle.addListener("center_changed", function() {
+            var center = c.getCenter()
+
+            d.center.lat = center.lat()
+            d.center.lng = center.lng()
+
+            localStorage.circlePositions = getMarkersJSON(markers)
+          })
+          circle.addListener("radius_changed", function() {
+            d.radius = c.getRadius()
+            lastUsedRadius = d.radius
+
+            localStorage.circlePositions = getMarkersJSON(markers)
+          })
+        }
+        fn()
+      }
+
+      function initialize() {
+        var mapOptions = {
+          zoom: 14,
+          center: new google.maps.LatLng(50.05967,14.465624),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+        var style = [
+          {
+            featureType: 'all',
+            elementType: 'all',
+            stylers: [
+              { saturation: -75 }
+            ]
+          }, {
+            "elementType": "labels",
+            "stylers": [
+             { "visibility": "off" }
+            ]
+          }
+        ];
+        var styledMapType = new google.maps.StyledMapType(style, {
+          map: map,
+          name: 'Styled Map'
+        });
+        map.mapTypes.set('map-style', styledMapType);
+        map.setMapTypeId('map-style');
+
+        // listen for clicks to place marker on map
+        google.maps.event.addListener(map, 'click', function(e) {
+            placeCircle(e.latLng, lastUsedRadius, pocitIdSelected, postaveniSelected, sampleCount)
+        });
+
+        // UI keyboard events
+        google.maps.event.addDomListener(document, 'keydown', function(e) {
+          if (e.keyCode == 46) { // DEL key
+            // remove active marker  
+            if (activeMarker) {
+              markers.splice(markers.indexOf(activeMarker), 1);
+              localStorage.circlePositions = getMarkersJSON(markers)
+              activeMarker.setMap(null)
+              setActiveMarker(null)
+            }
+          } else if (e.keyCode == 17) { // Ctrl key
+            ctrlKey = true
+          }
+        });
+        google.maps.event.addDomListener(document, 'keyup', function(e) {
+          if (e.keyCode == 17) { // Ctrl key
+            ctrlKey = false
+            if (activeMarkerCandidate) setActiveMarker(activeMarkerCandidate)
+          }
+        });
+
+        // load circle positions
+        if (localStorage.circlePositions) {
+          var positions = JSON.parse(localStorage.circlePositions)
+
+          for (var i = 0; i < positions.length; i++) {
+            var position = positions[i]
+            var center = new google.maps.LatLng(position.center.lat, position.center.lng)
+
+            placeCircle(center, position.radius, position.pocitId, position.ekonomickePostaveni, position.sampleCount)
+          }
+        }
+
+        // install controll for selecting circle properties
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(document.getElementById('customControl'))
+
+        // populate selectors
+        var postaveniSelector = document.getElementById('postaveniSelector')
+        for (var i = 0; i < ekonomickePostaveni.length; i++) {
+          var postaveni = ekonomickePostaveni[i]
+          var postaveniOption = document.createElement('option')
+
+          postaveniOption.value = postaveni
+          postaveniOption.innerText = postaveni
+          postaveniSelector.appendChild(postaveniOption)
+        }
+        var pocitSelector = document.getElementById('pocitSelector')
+        for (var i = 0; i < pocity.length; i++) {
+          var pocit = pocity[i]
+          var pocitOption = document.createElement('option')
+
+          pocitOption.value = pocit
+          pocitOption.innerText = pocit
+          pocitOption.style.backgroundColor = pocitoveBarvyRGB[i]
+          pocitSelector.appendChild(pocitOption)
+        }
+
+        // visualize selected circle properties
+        detail = document.getElementById('detail')
+      }
+
+      google.maps.event.addDomListener(window, 'load', initialize);
+
+      function postaveniChanged(sel) {
+        var index = sel.selectedIndex
+
+        postaveniSelected = ""
+        if (index > 0) {
+          postaveniSelected = ekonomickePostaveni[index - 1]
+        }
+      }
+
+      function pocitChanged(sel) {
+        var index = sel.selectedIndex
+
+        pocitIdSelected = index
+        pocitSelector.style.backgroundColor = pocitoveBarvyRGB[index]
+      }
+
+      function sampleCountChanged(value) {
+        document.getElementById('sampleCount').innerText = value
+        sampleCount = value
+      }
+
+      // generate sample data
+      // m and n are restart points between writes
+      function generateSampleData(writer, m, n) {
+        if (!m) m = 0
+        if (!n) n = 0
+        var bufArr = []
+
+        if (!m && !n) bufArr.push("pocit\tikona\tskupina\tpoloha\n") // just first line
+
+        for (var i = m; i < markers.length; i++) {
+          var marker = markers[i]
+          var lat = marker.center.lat()
+          var lng = marker.center.lng()
+          var latt = marker.getBounds().getNorthEast().lat()
+          var delta = Math.abs(latt - lat)
+          var circleData = marker.circleData
+          var pocit = pocity[circleData.pocitId]
+          var postaveni = circleData.ekonomickePostaveni
+          var ikona = pocitoveBarvy[circleData.pocitId]
+
+          for (var j = n; j < circleData.sampleCount; j++) {
+            var excentricity = delta * Math.random()
+            var azimuth = Math.random() * 2 * Math.PI
+            var dlat = excentricity * Math.cos(azimuth)
+            var dlng = excentricity * Math.sin(azimuth)
+
+            bufArr.push(pocit + "\t" + ikona + "\t" + postaveni + "\t" + (lat + dlat) + " " + (lng + dlng) + "\n")
+
+            // keep accumulating chunks or flush them out
+            if (bufArr.length > 500) { 
+              console.log('chunk ' + i + ' ' + j)
+              fileWrite(writer, bufArr, (function() {generateSampleData(writer, i, j + 1);}))
+              return // break the loop, it will be restarted asynchronously
+            }
+          }
+          n = 0 // inner loop should be restarted from 0
+        }
+
+        // flush the remainder
+        //console.log(arr)
+        fileWrite(writer, bufArr, generationFinished) // and run callback after write has finished
+      }
+
+      // write chunks and continue with callback
+      function fileWrite(writer, chunks, onSuccess) {
+        writer.onwriteend = onSuccess
+        var blob = new Blob(chunks, {type: 'text/plain'});
+        writer.write(blob)
+      }
+
+      function errorHandler(e) {
+        var msg = '';
+
+        switch (e.code) {
+          case FileError.QUOTA_EXCEEDED_ERR:
+            msg = 'QUOTA_EXCEEDED_ERR';
+            break;
+          case FileError.NOT_FOUND_ERR:
+            msg = 'NOT_FOUND_ERR';
+            break;
+          case FileError.SECURITY_ERR:
+            msg = 'SECURITY_ERR';
+            break;
+          case FileError.INVALID_MODIFICATION_ERR:
+            msg = 'INVALID_MODIFICATION_ERR';
+            break;
+          case FileError.INVALID_STATE_ERR:
+            msg = 'INVALID_STATE_ERR';
+            break;
+          default:
+            msg = 'Unknown Error';
+            break;
+        };
+
+        console.log('Error: ' + msg);
+      }
+
+      var generationFinished // callback at the end of data generation process
+
+      // access to filesystem
+      function onInitFs(fs) {
+        console.log('Opened file system: ' + fs.name);
+        fs.root.getFile('generated.csv', {create: true, exclusive: false}, function(fileEntry) {
+
+          // create or truncate 'generated.csv' file, start generator which will write output to file
+          fileEntry.createWriter(function(fileWriter) {
+            generationFinished = function(e) {
+              console.log('Write completed.');
+              document.getElementById('download').href = fileEntry.toURL();
+            };
+
+            fileWriter.onerror = function(e) {
+              console.log('Write failed: ' + e.toString());
+            };
+
+            // truncate
+            fileWriter.onwriteend = startGenerate // and start to generate output after truncate
+            fileWriter.truncate(0)
+
+            function startGenerate() {
+              generateSampleData(fileWriter)
+            }
+          }, errorHandler);
+        }, errorHandler);
+      }
+
+      // generate CSV up to 10MB, provide link to download
+      function writeSamplesToLocalFile() {
+        window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+        window.requestFileSystem(window.TEMPORARY, 10*1024*1024 /*10MB*/, onInitFs, errorHandler);
+      }
+
+    </script>
+  </head>
+  <body>
+    <div id="map_canvas"></div>
+    <div id="customControl">
+      <span id="detail">--</span>
+      <span style="opacity: 0.2">(Tip: use <span style="opacity: 2.0">Del</span> and Ctrl keys on map) </span>
+      <select id="postaveniSelector" onchange="postaveniChanged(this)">
+        <option value="" style="background-color:black">-- vyberte postavění --</option>
+      </select>
+      <select id="pocitSelector" onchange="pocitChanged(this)"></select>
+      <span id="sampleCount">40</span>
+      <input type="range" id="sampleCountSelector" value="40" min="5" max="400" step="1"
+       onchange="sampleCountChanged(sampleCountSelector.value)">
+      <button type="button" onclick="writeSamplesToLocalFile()">Generate</button>
+      <a id="download">download</a>
+    </div>
+  </body>
+</html>
