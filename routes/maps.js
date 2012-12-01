@@ -5,7 +5,14 @@ fillIns = db.collection('fillIns');
 
 // /maps
 exports.list = function(req, res) {
-	maps.find().toArray(function(err, maps) {
+	maps.find({
+        "$or": [{
+            "creator": req.session['user']
+        },
+        {
+            "public": true,
+        }]
+    }).toArray(function(err, maps) {
 		res.render('mapList', {
 			title: 'Seznam map',
 			page: 'mapList',
