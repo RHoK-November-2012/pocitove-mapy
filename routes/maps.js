@@ -1,7 +1,11 @@
-settings = require('../modules/settings');
-db = require("mongoskin").db(settings.MONGO_URI, {safe: true});
-maps = db.collection('maps');
-fillIns = db.collection('fillIns');
+var settings = require('../modules/settings');
+
+var db = require("mongoskin").db(settings.MONGO_URI, {safe: true});
+var sanitize = require("validator").sanitize;
+
+var maps = db.collection('maps');
+var fillIns = db.collection('fillIns');
+
 
 // /maps
 exports.list = function(req, res) {
@@ -242,10 +246,11 @@ exports.create = function(req, res) {
 	};
 
     var latlon = req.body.latlon.slice(1, req.body.latlon.length-1).split(/[\s,]+/);
+    var comment = sanitize(req.body.comment).xss();
 
     var map = {
         title: req.body.title,
-        comment: req.body.comment,
+        comment: comment,
         creator: req.session['user'],
         feelings: feelings,
         criteria: criteria,
@@ -260,8 +265,6 @@ exports.create = function(req, res) {
         maps.findById(req.body.mapId, function(err, old_map) {
             if (old_map && old_map['creator'] == req.session['user']) {
                 maps.updateById(req.body.mapId, map, function (err, map) {
-                    console.log(err);
-                    console.log(map);
                     res.redirect('/maps');
                 });
             }
