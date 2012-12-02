@@ -2,6 +2,7 @@ var settings = require('../modules/settings');
 
 var db = require("mongoskin").db(settings.MONGO_URI, {safe: true});
 var sanitize = require("validator").sanitize;
+var ejs = require('ejs');
 
 var maps = db.collection('maps');
 var fillIns = db.collection('fillIns');
@@ -72,8 +73,137 @@ exports.show = function(req, res) {
     });
 };
 
+exports.create_kml = function(req, res) {
+    var style_template = '\
+\n<Style id="<%= id %>">\
+\n    <IconStyle>\
+\n        <color><%= color %></color>\
+\n        <colorMode>normal</colorMode>\
+\n        <scale>1</scale>\
+\n        <heading>0</heading>\
+\n        <Icon>\
+\n            <href>http://maps.google.com/mapfiles/kml/shapes/road_shield3.png</href>\
+\n        </Icon>\
+\n        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>\
+\n    </IconStyle>\
+\n    <LineStyle>\
+\n        <color><%= color %></color>\
+\n        <colorMode>normal</colorMode>\
+\n        <width>2</width>\
+\n    </LineStyle>\
+\n    <PolyStyle>\
+\n        <color><%= color %></color>\
+\n        <colorMode>normal</colorMode>\
+\n        <fill>1</fill>\
+\n        <outline>1</outline>\
+\n    </PolyStyle>\
+\n</Style>'
+
+    var point_template = '\
+\n<Placemark>\
+\n    <name><%= name %></name>\
+\n    <styleUrl>#<%= styleUrl %></styleUrl>\
+\n    <Point>\
+\n        <coordinates><%= lon %>,<%= lat %></coordinates>\
+\n    </Point>\
+\n</Placemark>'
+
+    var line_template = '\
+\n<Placemark>\
+\n    <name><%= name %></name>\
+\n    <styleUrl>#<%= styleUrl %></styleUrl>\
+\n    <LineString>\
+\n        <coordinates>\
+\n<%= coordinates %>\
+\n        </coordinates>\
+\n    </LineString>\
+\n</Placemark>'
+
+    var polygon_template = '\
+\n<Placemark>\
+\n    <name><%= name %></name>\
+\n    <styleUrl>#<%= styleUrl %></styleUrl>\
+\n    <Polygon>\
+\n        <outerBoundaryIs>\
+\n            <LinearRing>\
+\n                <coordinates>\
+\n<%= coordinates %>\
+\n                </coordinates>\
+\n            </LinearRing>\
+\n        </outerBoundaryIs>\
+\n    </Polygon>\
+\n</Placemark>'
+
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\
+\n<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">\
+\n<Document>'
+
+    maps.findById(req.params.mapId, function (err, map) {
+        for (var i = 0; i < map.feelings.length; i++) {
+            var color = map.feelings[i].color;
+            xml += ejs.render(style_template, {
+                id: "feeling" + i,
+                color: "7f" + color.substr(5, 2) + color.substr(3, 2) + color.substr(1, 2)
+            });
+        }
+        xml += "<Folder>";
+
+        fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
+            for (var i = 0; i < fs.length; i++) {
+                if ('points' in fs[i].shapes) {
+                    var points = fs[i].shapes.points;
+                    for (var j = 0; j < points.length; j++) {
+                        xml += ejs.render(point_template, {
+                            name: points[j].text,
+                            lat: points[j].lat,
+                            lon: points[j].lng,
+                            styleUrl: "feeling" + points[j].feeling
+                        });
+                    }
+                }
+
+                if ('polylines' in fs[i].shapes) {
+                    var lines = fs[i].shapes.polylines;
+                    for (var j = 0; j < lines.length; j++) {
+                        var coordinates = "";
+                        for (var k = 0; k < lines[j].path.length; k++) {
+                            coordinates += lines[j].path[k].lng + "," + lines[j].path[k].lat + "\n";
+                        }
+
+                        xml += ejs.render(line_template, {
+                            name: lines[j].text,
+                            coordinates: coordinates,
+                            styleUrl: "feeling" + lines[j].feeling
+                        });
+                    }
+                }
+
+                if ('polygons' in fs[i].shapes) {
+                    var polygons = fs[i].shapes.polygons;
+                    for (var j = 0; j < polygons.length; j++) {
+                        var coordinates = "";
+                        for (var k = 0; k < polygons[j].path.length; k++) {
+                            coordinates += polygons[j].path[k].lng + "," + polygons[j].path[k].lat + "\n";
+                        }
+                        coordinates += polygons[j].path[0].lng + "," + polygons[j].path[0].lat + "\n";
+
+                        xml += ejs.render(polygon_template, {
+                            name: polygons[j].text,
+                            coordinates: coordinates,
+                            styleUrl: "feeling" + polygons[j].feeling
+                        });
+                    }
+                }
+            }
+            xml += "</Folder></Document></kml>";
+            res.send(xml);
+        });
+    });
+}
+
 // /maps/:mapId/fill
-exports.fill = function(req, res) {fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
+exports.fill = function(req, res) {
+    fillIns.find({map: req.params.mapId}).toArray(function (err, fs) {
         var points = [];
         var lines = [];
         var polygons = [];
@@ -84,17 +214,13 @@ exports.fill = function(req, res) {fillIns.find({map: req.params.mapId}).toArray
                     points.push(JSON.stringify(fs[i]['shapes']['points'][j]));
                 }
             }
-        }
 
-        for (var i = 0; i < fs.length; i++) {
             if ('polylines' in fs[i]['shapes']) {
                 for (var j = 0; j < fs[i]['shapes']['polylines'].length; j++) {
                     lines.push(JSON.stringify(fs[i]['shapes']['polylines'][j]));
                 }
             }
-        }
 
-        for (var i = 0; i < fs.length; i++) {
             if ('polygons' in fs[i]['shapes']) {
                 for (var j = 0; j < fs[i]['shapes']['polygons'].length; j++) {
                     polygons.push(JSON.stringify(fs[i]['shapes']['polygons'][j]));

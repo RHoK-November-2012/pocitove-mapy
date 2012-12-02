@@ -49,6 +49,8 @@ app.get('/maps/:mapId/fill', maps.fill);
 app.post('/maps/:mapId/save', maps.save);
 app.get('/maps/:mapId/shapes', maps.shapes);
 
+app.get('/kml/:mapId', maps.create_kml);
+
 app.get('/maps/design', maps.design);
 app.get('/maps/:mapId/edit', maps.edit);
 app.post('/maps/create', maps.create);
