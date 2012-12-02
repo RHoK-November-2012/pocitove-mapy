@@ -28,31 +28,6 @@
 					google.maps.drawing.OverlayType.POLYLINE,
 				]
 				},
-				markerOptions: {
-					icon: {
-						path: google.maps.SymbolPath.CIRCLE,
-					    scale: 5,
-					    fillColor: "#ff0000",
-					    fillOpacity: 0.5,
-					    strokeColor: "#ff0000",
-					    strokeWeight: 1,
-					    clickable: true,
-					},
-				},
-				polygonOptions: {
-					fillColor: "",
-				    fillOpacity: 0.5,
-				    strokeColor: "",
-				    strokeWeight: 1,
-				    clickable: true,
-				},
-				polylineOptions: {
-					fillColor: "",
-				    fillOpacity: 0.5,
-				    strokeColor: "",
-				    strokeWeight: 2,
-				    clickable: true,
-				}
 			});
 			drawingManager.setMap(map);
 
@@ -127,7 +102,7 @@
 							markerOptions: {
 								icon: {
 									path: google.maps.SymbolPath.CIRCLE,
-								    scale: 5,
+								    scale: 15,
 								    fillColor: "<%= feeling.color %>",
 								    fillOpacity: 0.5,
 								    strokeColor: "<%= feeling.color %>",
