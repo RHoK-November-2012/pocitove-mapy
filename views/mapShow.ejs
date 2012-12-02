@@ -55,7 +55,7 @@ var mapOptions = {
 };
 map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
-var kmlLayer = new google.maps.KmlLayer('http://pocitovamapa.herokuapp.com/kml/<%= mapId %>?t=<%= new Date().getTime() %>');
+var kmlLayer = new google.maps.KmlLayer('http://pocitovamapa.herokuapp.com/kml/<%= mapId %>?t=<%= new Date().getTime() %>', { preserveViewport: true });
 kmlLayer.setMap(map);
 });
 </script>
