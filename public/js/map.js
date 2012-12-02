@@ -1,6 +1,7 @@
   var map;
   var drawingManager;
   var markersArray = [];
+  var infoWindows = {};
 
   function initialize_map(latlng, zoom) {
     var myOptions = {
@@ -32,7 +33,14 @@
 
     $(".saveCommentButton").live("click", function() {
       $ta = $(this).parent().parent().find("textarea");
-      tIdToMarkers[$ta.attr("id")].text = $ta.val();
+      var id = $ta.attr("id");
+      tIdToMarkers[id].text = $ta.val();
+
+      // close info window
+      if (infoWindows[id]) {
+        infoWindows[id].setMap(null)
+        delete infoWindows[id]
+      }
     });
 
     $.getJSON("shapes", function(data) {
@@ -50,6 +58,44 @@
 
     return map;
   }
+
+// popup info window for point with id and index
+function infoWindowPopuper(tmpId, tmpIdx) {
+  var id = "t" + tmpId
+  var idx = tmpIdx
+  return function () {
+    var infoWindow = new google.maps.InfoWindow();
+
+    // close others, already opened info windows
+    for (var i in infoWindows) {
+      infoWindows[i].setMap(null)
+      delete infoWindow[i]
+    }
+
+    infoWindows[id] = infoWindow; // handle for closing
+
+    infoWindow.setContent("<textarea id='" + id + "'>"
+      + (selected.points[idx].text ? selected.points[idx].text : "")
+      + "</textarea><div style='text-align:right'><button class='saveCommentButton' id='btn" + id + "'>Uložit</button></div>");
+    infoWindow.open(map, this);
+
+    // focus and keyboard handlers hack 
+    setTimeout(function() { 
+      $edit = $("#" + id)
+      $edit.focus()
+      $edit.keydown(function (ev) {
+        if (ev.keyCode == 27) { // ESC - hide
+          infoWindows[id].setMap(null)
+          delete infoWindows[id]
+        } else if (ev.keyCode == 13) { // Enter - save
+          if (!ev.shiftKey) { // allow inserting '\n' with shift+Enter
+            $("#btn" + id).click()  // simulate save button click
+          }
+        }
+      })
+    }, 200); 
+  }
+}
 
 var selected =
 {

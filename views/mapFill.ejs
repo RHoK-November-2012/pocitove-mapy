@@ -178,11 +178,10 @@
 			    tId++;
     			tIdToMarkers["t" + tId] = selected.points[selected.points.length-1];
 
-		        google.maps.event.addListener(marker, 'click', function() {
-			    	var infoWindow = new google.maps.InfoWindow();
-			    	infoWindow.setContent("<textarea id='t" + tId + "'>" + (selected.points[selected.points.length-1].text ? selected.points[selected.points.length-1].text : "") + "</textarea><div style='text-align:right'><button class='saveCommentButton'>Uložit</button></div>");
-			    	infoWindow.open(map, this);
-		        });
+    			// show info window
+    			var popuper = infoWindowPopuper(tId, selected.points.length-1);
+		        google.maps.event.addListener(marker, 'click', popuper);
+		        popuper.call(marker) // show info window after point has been added
 		      }
 		    });
 
