@@ -95,7 +95,7 @@ exports.create_kml = function(req, res) {
 \n        <color><%= color %></color>\
 \n        <colorMode>normal</colorMode>\
 \n        <fill>1</fill>\
-\n        <outline>1</outline>\
+\n        <outline>0</outline>\
 \n    </PolyStyle>\
 \n</Style>'
 
@@ -143,7 +143,7 @@ exports.create_kml = function(req, res) {
             var color = map.feelings[i].color;
             xml += ejs.render(style_template, {
                 id: "feeling" + i,
-                color: "7f" + color.substr(5, 2) + color.substr(3, 2) + color.substr(1, 2)
+                color: "3f" + color.substr(5, 2) + color.substr(3, 2) + color.substr(1, 2)
             });
         }
         xml += "<Folder>";
