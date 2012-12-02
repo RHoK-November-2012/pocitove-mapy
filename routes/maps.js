@@ -82,7 +82,7 @@ exports.create_kml = function(req, res) {
 \n        <scale>1</scale>\
 \n        <heading>0</heading>\
 \n        <Icon>\
-\n            <href>http://maps.google.com/mapfiles/kml/shapes/road_shield3.png</href>\
+\n            <href>http://pocitovamapa.herokuapp.com/img/point.png</href>\
 \n        </Icon>\
 \n        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>\
 \n    </IconStyle>\
