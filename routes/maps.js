@@ -77,7 +77,7 @@ exports.create_kml = function(req, res) {
     var style_template = '\
 \n<Style id="<%= id %>">\
 \n    <IconStyle>\
-\n        <color><%= color %></color>\
+\n        <color>3f<%= color %></color>\
 \n        <colorMode>normal</colorMode>\
 \n        <scale>1</scale>\
 \n        <heading>0</heading>\
@@ -87,12 +87,12 @@ exports.create_kml = function(req, res) {
 \n        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>\
 \n    </IconStyle>\
 \n    <LineStyle>\
-\n        <color><%= color %></color>\
+\n        <color>3f<%= color %></color>\
 \n        <colorMode>normal</colorMode>\
 \n        <width>2</width>\
 \n    </LineStyle>\
 \n    <PolyStyle>\
-\n        <color><%= color %></color>\
+\n        <color>10<%= color %></color>\
 \n        <colorMode>normal</colorMode>\
 \n        <fill>1</fill>\
 \n        <outline>0</outline>\
@@ -143,7 +143,7 @@ exports.create_kml = function(req, res) {
             var color = map.feelings[i].color;
             xml += ejs.render(style_template, {
                 id: "feeling" + i,
-                color: "3f" + color.substr(5, 2) + color.substr(3, 2) + color.substr(1, 2)
+                color: color.substr(5, 2) + color.substr(3, 2) + color.substr(1, 2)
             });
         }
         xml += "<Folder>";
