@@ -55,8 +55,7 @@ var mapOptions = {
 };
 map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
-// TODO(davidmarek): Nasadit na server a zmenit adresu.
-var kmlLayer = new google.maps.KmlLayer('http://pastebin.com/raw.php?i=0in3jzKc&1');
+var kmlLayer = new google.maps.KmlLayer('http://pocitovamapa.herokuapp.com/kml/<%= mapId %>?t=<%= new Date().getTime() %>');
 kmlLayer.setMap(map);
 });
 </script>
