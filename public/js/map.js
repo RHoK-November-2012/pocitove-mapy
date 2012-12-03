@@ -9,27 +9,28 @@
       center: new google.maps.LatLng(latlng.lat, latlng.lng),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
-      streetViewControl: false
-      ,
+      streetViewControl: false,
       styles: [
-  {
-    "elementType": "labels",
-    "stylers": [
-      { "visibility": "off" }
-    ]
-  },{
-    "stylers": [
-      { "saturation": -75 }
-    ]
-  },{
-    "featureType": "road",
-    "stylers": [
-      { "weight": 1 }
-    ]
-  }
-]
+        {
+          "elementType": "labels",
+          "stylers": [
+            { "visibility": "off" }
+          ]
+        },
+        {
+          "stylers": [
+            { "saturation": -75 }
+          ]
+        },
+        {
+          "featureType": "road",
+          "stylers": [
+            { "weight": 1 }
+          ]
+        }
+      ]
     };
-    map = new google.maps.Map(document.getElementById("map"), myOptions);
+    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
     $(".saveCommentButton").live("click", function() {
       $ta = $(this).parent().parent().find("textarea");

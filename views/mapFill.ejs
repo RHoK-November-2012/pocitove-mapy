@@ -96,18 +96,23 @@
 	</script>
 
 	<script type="text/javascript">window.model = <%- JSON.stringify(model) %>;</script>
-	<h1><%= model.title %></h1>
+	<div class="row">
+		<div class="span12">
+			<h1><%= model.title %></h1>
+			<hr>
+		</div>
+	</div>
 	<div class="row">
 		<span class="hidden"><div class="feelings" id="feelingsControl">
 			<% for (var i=0; i<model.feelings.length; i++) { feeling=model.feelings[i]; %>
-				<div class="btn feelingBox" id="feeling<%=i%>">
+				<div class="mapControls feelingBox" id="feeling<%=i%>">
 					<div class="feelingColorBox" style="background-color: <%= feeling.color %>;"> </div>
 					<%= feeling.text %>
 				</div>
 				<script type="text/javascript">
 					$("#feeling<%=i%>").click(function(){
 						setFeeling(<%=i%>, "<%= feeling.color %>");
-						$(".feelings .btn").removeClass("active");
+						$(".feelings .mapControls").removeClass("active");
 						$("#feeling<%=i%>").addClass("active");
 						drawingManager.setOptions({
 							markerOptions: {
@@ -145,7 +150,7 @@
 				});
 			</script>
 		</div></span>
-		<div class="span12" id="map">
+		<div class="span12" id="map_canvas">
 		</div>
 	</div>
 	<div class="row criteria">

@@ -28,7 +28,7 @@
 	</div>
 	<div class="hidden"><div class="feelings" id="feelingsControl">
 			<% for (var i=0; i<model.feelings.length; i++) { var feeling = model.feelings[i]; %>
-				<div class="btn feelingBox" id="feeling<%=i%>">
+				<div class="mapControls feelingBox" id="feeling<%=i%>">
 					<div class="feelingColorBox" style="background-color: <%= feeling.color %>;"> </div>
 					<%= feeling.text %>
 				</div>
@@ -45,6 +45,7 @@ var mapOptions = {
 		center: new google.maps.LatLng(<%=model.latlon%>),
 		mapTypeId: google.maps.MapTypeId.ROADMAP,
 		mapTypeControl: false,
+		streetViewControl: false,
 		styles: [
 				  {
 				    "elementType": "labels",
@@ -73,12 +74,5 @@ map.controls[google.maps.ControlPosition.TOP_RIGHT].push(document.getElementById
 });
 
 </script>
-
-<style>
-#map_canvas {
-	height: 500px;
-	padding-left: 0;
-}
-</style>
 
 <% include footer.ejs %>
