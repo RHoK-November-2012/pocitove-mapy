@@ -192,6 +192,18 @@ span.help-inline {
   background-image: url('/img/Bpu.png');
 }
 
+.feelings {
+  /* panel inside map with feeling color buttons */
+  margin: 2px;
+}
+
+.feelingBox {
+  /* button inside map for selecting feeling color */
+  display: block;
+  text-align: left;
+  margin: 5px;
+}
+
 .feelingColorBox
 {
   width: 1em;
