@@ -35,16 +35,21 @@
 			kmlLayer.setMap(map);
 
 			google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+			  var overlayInfo;	// information we are going to serialize
+			  var position;		// where info window will be pointing
+
 		      if(event.type == google.maps.drawing.OverlayType.POLYLINE) {
 		        polyline = event.overlay;
 			    polyline.setOptions({
 			    	strokeColor: actualFeeling.color,
 			    });
-			    selected.polylines.push({
+			    overlayInfo = {
 			        path: polyline.getPath().getArray(),
 			        feeling: actualFeeling.id,
 			        polyline: polyline
-			    });
+			    };
+			    position = polyline.getPath().getAt(polyline.getPath().getLength() - 1);
+			    selected.polylines.push(overlayInfo);
 		      }
 		      else if (event.type == google.maps.drawing.OverlayType.POLYGON) {
 		      	polygon = event.overlay;
@@ -52,28 +57,31 @@
 		      		strokeColor: actualFeeling.color,
 		      		fillColor: actualFeeling.color,
 		      	});
-			    selected.polygons.push({
+			    overlayInfo = {
 			        path: polygon.getPath().getArray(),
 			        feeling: actualFeeling.id,
 			        polygon: polygon
-			    });
+			    }
+			    position = polygon.getPath().getAt(0);
+			    selected.polygons.push(overlayInfo);
 		      }
 		      else if(event.type == google.maps.drawing.OverlayType.MARKER) {
 		        var marker = event.overlay;
-			    selected.points.push({
+		        overlayInfo = {
 			    	location: marker.getPosition(),
 			    	feeling: actualFeeling.id,
 			    	marker: marker
-			    });
-
-			    tId++;
-    			tIdToMarkers["t" + tId] = selected.points[selected.points.length-1];
-
-    			// show info window
-    			var popuper = infoWindowPopuper(tId, selected.points.length-1);
-		        google.maps.event.addListener(marker, 'click', popuper);
-		        popuper.call(marker) // show info window after point has been added
+			    }
+			    position = marker.getPosition();
+			    selected.points.push(overlayInfo);
 		      }
+
+			  // show info window
+			  tId++;
+			  tIdToMarkers["t" + tId] = overlayInfo;
+			  var popuper = infoWindowPopuper(tId, overlayInfo, position);
+	          google.maps.event.addListener(event.overlay, 'click', popuper);
+	          popuper.call(event.overlay) // show info window after point has been added
 		    });
 
 			// insert feeling selector buttons into map

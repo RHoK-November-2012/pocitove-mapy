@@ -59,10 +59,13 @@
     return map;
   }
 
-// popup info window for point with id and index
-function infoWindowPopuper(tmpId, tmpIdx) {
+// popup info window for overlay (marker, polyline, polygon)
+//   tmpId - id used for storing text upon save
+//   overlayInfo - source of initial .text
+//   position - place where infowindow should point to
+function infoWindowPopuper(tmpId, overlayInfo, position) {
   var id = "t" + tmpId
-  var idx = tmpIdx
+
   return function () {
     var infoWindow = new google.maps.InfoWindow();
 
@@ -75,9 +78,12 @@ function infoWindowPopuper(tmpId, tmpIdx) {
     infoWindows[id] = infoWindow; // handle for closing
 
     infoWindow.setContent("<textarea id='" + id + "'>"
-      + (selected.points[idx].text ? selected.points[idx].text : "")
+      + (overlayInfo.text ? overlayInfo.text : "")
       + "</textarea><div style='text-align:right'><button class='saveCommentButton' id='btn" + id + "'>Uložit</button></div>");
-    infoWindow.open(map, this);
+    infoWindow.setPosition(position)
+
+    // show infowindow, provide marker if present (it's infowindow's friend)
+    infoWindow.open(map, this.getPosition ? this : null);
 
     // focus and keyboard handlers hack 
     setTimeout(function() { 
