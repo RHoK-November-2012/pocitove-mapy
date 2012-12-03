@@ -154,7 +154,7 @@ exports.create_kml = function(req, res) {
                     var points = fs[i].shapes.points;
                     for (var j = 0; j < points.length; j++) {
                         xml += ejs.render(point_template, {
-                            name: points[j].text,
+                            name: points[j].text ? points[j].text : "",
                             lat: points[j].lat,
                             lon: points[j].lng,
                             styleUrl: "feeling" + points[j].feeling
