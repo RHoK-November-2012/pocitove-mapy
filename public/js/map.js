@@ -67,7 +67,7 @@
 function infoWindowPopuper(tmpId, overlayInfo, position) {
   var id = "t" + tmpId
 
-  return function () {
+  return function (ev) {
     var infoWindow = new google.maps.InfoWindow();
 
     // close others, already opened info windows
@@ -82,6 +82,10 @@ function infoWindowPopuper(tmpId, overlayInfo, position) {
       + (overlayInfo.text ? overlayInfo.text : "")
       + "</textarea><div style='text-align:right'><button class='saveCommentButton' id='btn" + id + "'>Uložit</button></div>");
     infoWindow.setPosition(position)
+
+    if (ev && ev.latLng) {
+      infoWindow.setPosition(ev.latLng) // use position of click (polygon / polyline)
+    }
 
     // show infowindow, provide marker if present (it's infowindow's friend)
     infoWindow.open(map, this.getPosition ? this : null);
