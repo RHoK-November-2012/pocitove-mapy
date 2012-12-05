@@ -3,6 +3,77 @@
   var markersArray = [];
   var infoWindows = {};
 
+  // map based on custom images
+  //  custompath - path to tiles of map
+  function initialize_custom_map(latlng, zoom, custompath) {
+    var MIN_ZOOM = 10;
+    var MAX_ZOOM = 14;
+
+    function formatNumber(n) {
+      var ret = "" + n
+
+      ret = "000".substr(0, 3 - ret.length) + ret
+
+      return ret
+    }
+
+    var customTypeOptions = {
+      getTileUrl: function(coord, zoom) {
+          var normalizedCoord = getNormalizedCoord(coord, zoom);
+
+          zoom -= MIN_ZOOM;
+
+          if (!normalizedCoord) { return null; }
+
+          var bound = Math.pow(2, zoom);
+
+          return '/custommap/' + custompath + '/slices/level-' + zoom + '-'
+            + formatNumber(bound * normalizedCoord.y + normalizedCoord.x)
+            + ".png"
+      },
+      tileSize: new google.maps.Size(256, 256),
+      maxZoom: MAX_ZOOM,
+      minZoom: MIN_ZOOM,
+      name: 'Custom'
+    };
+
+    var customMapType = new google.maps.ImageMapType(customTypeOptions);
+
+    var mapOptions = {
+      center: new google.maps.LatLng(latlng.lat, latlng.lng),
+      zoom: zoom,
+      streetViewControl: false,
+      mapTypeControl: false,
+    };
+
+    map = new google.maps.Map(document.getElementById('map_canvas'),
+        mapOptions);
+    map.mapTypes.set('custom', customMapType);
+    map.setMapTypeId('custom');
+
+    // wrap prevention by http://stackoverflow.com/questions/11411246/google-maps-api-v3-prevent-imagemaptype-from-wrapping
+    function getNormalizedCoord(coord, zoom) {
+      var totalTiles = 1 << (zoom - MIN_ZOOM),
+          y = coord.y,
+          x = coord.x;
+      var originx = 1 << (zoom-1),
+          originy = 1 << (zoom-1);
+
+      if(y < originx || y >= originx + totalTiles ||
+          x < originx || x >= originx + totalTiles) {
+          return null;
+      }
+
+      x -= originx;
+      y -= originy;
+
+      return { x:x, y:y };
+    }
+
+    return map
+  }
+
+  // map based on google imagery
   function initialize_map(latlng, zoom) {
     var myOptions = {
       zoom: zoom,
@@ -32,33 +103,21 @@
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-    $(".saveCommentButton").live("click", function() {
-      $ta = $(this).parent().parent().find("textarea");
-      var id = $ta.attr("id");
-      tIdToMarkers[id].text = $ta.val();
-
-      // close info window
-      if (infoWindows[id]) {
-        infoWindows[id].setMap(null)
-        delete infoWindows[id]
-      }
-    });
-
-    $.getJSON("shapes", function(data) {
-      for (var i=0; i<data.length; i++) {
-        submit = data[i];
-        if (submit.shapes.points)
-        {
-          for (var j=0; j<submit.shapes.points.length; j++){
-            point = submit.shapes.points[j];
-          }
-        }
-      }
-      console.log(data);
-    });
-
     return map;
   }
+
+// save comments typed into info windows
+$(".saveCommentButton").live("click", function() {
+  $ta = $(this).parent().parent().find("textarea");
+  var id = $ta.attr("id");
+  tIdToMarkers[id].text = $ta.val();
+
+  // close info window
+  if (infoWindows[id]) {
+    infoWindows[id].setMap(null)
+    delete infoWindows[id]
+  }
+});
 
 // popup info window for overlay (marker, polyline, polygon)
 //   tmpId - id used for storing text upon save

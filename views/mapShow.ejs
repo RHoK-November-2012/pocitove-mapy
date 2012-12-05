@@ -39,32 +39,18 @@
 
 <script>
 $(window).load(function() {
-var map;
-var mapOptions = {
-		zoom: <%=model.zoom%>,
-		center: new google.maps.LatLng(<%=model.latlon%>),
-		mapTypeId: google.maps.MapTypeId.ROADMAP,
-		mapTypeControl: false,
-		streetViewControl: false,
-		styles: [
-				  {
-				    "elementType": "labels",
-				    "stylers": [
-				      { "visibility": "off" }
-				    ]
-				  },{
-				    "stylers": [
-				      { "saturation": -75 }
-				    ]
-				  },{
-				    "featureType": "road",
-				    "stylers": [
-				      { "weight": 1 }
-				    ]
-				  }
-				]
-};
-map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+<% if (model.custompath) { %>
+	map = initialize_custom_map({
+			lat: <%= model.latlon[0] %>,
+			lng: <%= model.latlon[1] %>
+		}, <%= model.zoom %>
+		, "<%= model.custompath %>");
+<% } else { %>
+	map = initialize_map({
+			lat: <%= model.latlon[0] %>,
+			lng: <%= model.latlon[1] %>
+		}, <%= model.zoom %>);
+<% } %>
 
 var kmlLayer = new google.maps.KmlLayer('http://pocitovamapa.herokuapp.com/kml/<%= mapId %>?t=<%= new Date().getTime() %>', { preserveViewport: true });
 kmlLayer.setMap(map);

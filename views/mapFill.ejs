@@ -12,10 +12,18 @@
 		tId = 0;
 
 		$(document).ready(function() {
+		<% if (model.custompath) { %>
+			map = initialize_custom_map({
+					lat: <%= model.latlon[0] %>,
+					lng: <%= model.latlon[1] %>
+				}, <%= model.zoom %>
+				, "<%= model.custompath %>");
+		<% } else { %>
 			map = initialize_map({
-				lat: <%= model.latlon[0] %>,
-				lng: <%= model.latlon[1] %>
-			}, <%= model.zoom %>);
+					lat: <%= model.latlon[0] %>,
+					lng: <%= model.latlon[1] %>
+				}, <%= model.zoom %>);
+		<% } %>
 
 			drawingManager = new google.maps.drawing.DrawingManager({
 				drawingMode: google.maps.drawing.OverlayType.MARKER,

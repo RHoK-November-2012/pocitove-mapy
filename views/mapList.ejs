@@ -12,7 +12,11 @@
 <div class="row">
 	<div class="span12 mapItem">
 	<div class="span3 mapImage">
-    	<img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= map.latlon %>&amp;zoom=<%= map.zoom %>&amp;size=600x400&amp;key=AIzaSyBmIHT_b4PoGIXOztnFkbU6KDgPIdeFqwE&amp;sensor=false" class="mapPreview">
+		<% if (map.custompath) { %>
+			<img src="/custommap/<%= map.custompath %>/slices/level-0-000.png" class="mapPreview">
+		<% } else { %>
+			<img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= map.latlon %>&amp;zoom=<%= map.zoom %>&amp;size=600x400&amp;key=AIzaSyBmIHT_b4PoGIXOztnFkbU6KDgPIdeFqwE&amp;sensor=false" class="mapPreview">
+		<% } %>
 	</div>
 	<div class="span8">
 		<h2><%= map.title %></h2>
