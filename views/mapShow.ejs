@@ -23,7 +23,7 @@
 			<p><a href='/maps/<%= model._id %>/fill'>Zadat vlastní pocity</a><% if (model.creator===user && user) { %> · <a href='/maps/<%= model._id %>/edit'>Upravit definici mapy</a> (jste autorem) <% }; %>
 			<p><%- model.comment %></p>
 			<% start = new Date(model.start); end = new Date(model.end); %>
-			<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth() %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth() %>. <%= end.getFullYear() %></p>
+			<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth()+1 %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth()+1 %>. <%= end.getFullYear() %></p>
 		</div>
 	</div>
 	<div class="hidden"><div class="feelings" id="feelingsControl">
