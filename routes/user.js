@@ -23,6 +23,7 @@ exports.login = function(req, res) {
 
         if (user) {
             req.session['user'] = email;
+            req.session['userCanCreateCustomMap'] = user.canCreateCustomMap;
             res.redirect('/');
         } else {
             // TODO(davidmarek): Dodelat ukazani chyb.

@@ -39,12 +39,12 @@
 
 <script>
 $(window).load(function() {
-<% if (model.custompath) { %>
+<% if (model.custom) { %>
 	map = initialize_custom_map({
 			lat: <%= model.latlon[0] %>,
 			lng: <%= model.latlon[1] %>
 		}, <%= model.zoom %>
-		, "<%= model.custompath %>");
+		, <%- JSON.stringify(model.custom) %>);
 <% } else { %>
 	map = initialize_map({
 			lat: <%= model.latlon[0] %>,
@@ -52,7 +52,7 @@ $(window).load(function() {
 		}, <%= model.zoom %>);
 <% } %>
 
-var kmlLayer = new google.maps.KmlLayer('http://pocitovamapa.herokuapp.com/kml/<%= mapId %>?t=<%= new Date().getTime() %>', { preserveViewport: true });
+var kmlLayer = new google.maps.KmlLayer('<%= baseUriExternal + '/kml/' + mapId + '?t=' + new Date().getTime() %>', { preserveViewport: true });
 kmlLayer.setMap(map);
 
 // insert feeling selector buttons into map

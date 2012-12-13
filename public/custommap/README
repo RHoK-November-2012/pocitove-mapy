@@ -1,0 +1,6 @@
+Maps based on pictures provided by users
+will be placed to this folder
+
+NOTE: content of this folder get erased
+when new version of the app is pushed to heroku, therefore
+some other method of tile storage should be found

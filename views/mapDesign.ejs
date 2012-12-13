@@ -16,7 +16,7 @@
 <% }; %>
 <div class="row">
     <div class="span8 offset2">
-        <form class="form-horizontal" id="new_map_form" action="/maps/create" method="post">
+        <form class="form-horizontal" id="new_map_form" action="/maps/create" method="post" enctype="multipart/form-data">
             <div class="control-group">
                 <label class="control-label" for="inputTitle">Název pocitové mapy:</label>
                 <div class="controls">
@@ -32,9 +32,26 @@
                 </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group" id="podklad_group">
                 <label class="control-label" for="inputMapSelect">Výběr mapového podkladu:</label>
                 <div class="controls">
+                    <% if (userCanCreateCustomMap) { %>
+                    <div class="row">
+                        <div class="span6">
+                        <div class="btn-group" data-toggle="buttons-radio">
+                            <button type="button" class="btn btn active" id="use_google_maps">Použít mapy Googlu</button>
+                            <button type="button" class="btn btn" id="use_custom_maps">Použít vlastný mapový podklad</button>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="row" id="custom_map_uploader" style="display: none">
+                        <div class="span6">
+                        <div class="btn-group">
+                            <span class="btn btn-file-small"><input type="file" id="custom_map_image" name="custom_map_image" accept="image/*" placeholder="Soubor s mapovým podkladem"></span>
+                        </div>
+                        </div>
+                    </div>
+                    <% } %>
                     <div id="map_canvas" id="inputMapSelect" class="span6 select_map"></div>
                 </div>
             </div>
@@ -281,6 +298,21 @@ $(document).ready(function() {
         i++;
     });
 
+    var useCustomMap = false;
+
+    $("#use_google_maps").click(function (e) {
+        $("#map_canvas").show()
+        $("#custom_map_uploader").hide()
+        useCustomMap = false
+        validateFileUpload()
+    });
+
+    $("#use_custom_maps").click(function (e) {
+        $("#map_canvas").hide()
+        $("#custom_map_uploader").show()
+        useCustomMap = true;
+    });
+
     $("#add_new_criterion_button").click(function () {
         $("#criterion_prepend").append(new_criterion_item(j, "", true, ""));
         j++;
@@ -311,6 +343,22 @@ $(document).ready(function() {
             ['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink']
         ],
     });
+
+    //
+    // form validation
+    //
+    function validateFileUpload() {
+        $('#podklad_group').removeClass('error')
+        if (useCustomMap && $("#custom_map_image").val() == "") {
+            $('#podklad_group').addClass('error')
+            return false;
+        }
+        return true;
+    }
+
+    $("#new_map_form").on('submit', function () {
+        return validateFileUpload();
+    })
 })
 </script>
 

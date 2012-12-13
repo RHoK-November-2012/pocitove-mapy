@@ -1,2 +1,6 @@
 node_modules
 run.sh
+public/custommap/*
+!public/custommap/README
+.env
+/tmp/

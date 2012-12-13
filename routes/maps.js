@@ -63,6 +63,7 @@ exports.show = function(req, res) {
                 title: 'Prohlížení mapy',
                 page: 'mapShow',
                 user: req.session['user'],
+                baseUriExternal: settings.BASE_URI_EXTERNAL,
                 mapId: req.params.mapId,
                 model: map,
                 points: points,
@@ -82,7 +83,7 @@ exports.create_kml = function(req, res) {
 \n        <scale>1</scale>\
 \n        <heading>0</heading>\
 \n        <Icon>\
-\n            <href>http://pocitovamapa.herokuapp.com/img/point.png</href>\
+\n            <href><% baseUriExternal %>/img/point.png</href>\
 \n        </Icon>\
 \n        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>\
 \n    </IconStyle>\
@@ -142,6 +143,7 @@ exports.create_kml = function(req, res) {
         for (var i = 0; i < map.feelings.length; i++) {
             var color = map.feelings[i].color;
             xml += ejs.render(style_template, {
+                baseUriExternal: settings.BASE_URI_EXTERNAL,
                 id: "feeling" + i,
                 color: color.substr(5, 2) + color.substr(3, 2) + color.substr(1, 2)
             });
@@ -233,6 +235,7 @@ exports.fill = function(req, res) {
     			title: 'Vyplňování mapy ' + map.title,
             	page: 'mapFill',
             	user: req.session['user'],
+                baseUriExternal: settings.BASE_URI_EXTERNAL,
             	mapId: req.params.mapId,
             	model: map,
                 points: points,
@@ -271,6 +274,7 @@ exports.design = function(req, res){
 		title: 'Návrh nové mapy',
 		page: 'mapDesign',
 		user: req.session['user'],
+        userCanCreateCustomMap: req.session['userCanCreateCustomMap'],
         mapId: -1,
         model: {},
         default_criteria: [
@@ -331,6 +335,7 @@ exports.edit = function(req, res) {
     			title: 'Úprava existující mapy',
     			page: 'mapDesign',
     			user: req.session['user'],
+                userCanCreateCustomMap: req.session['userCanCreateCustomMap'],
     			mapId: req.params.mapId,
     			model: map,
                 default_criteria: [],
@@ -396,7 +401,76 @@ exports.create = function(req, res) {
             }
         });
     } else {
-        maps.insert(map, function() {
+        maps.insert(map, function(err, map) {
+            console.log('err', err, 'map', map)
+
+            if (req.files && req.files.custom_map_image && req.files.custom_map_image.size) {
+                var fs = require('fs')
+                var imageFile = req.files.custom_map_image.path
+                var id = map[0]._id
+                var dst = 'public/custommap/' + id + '/'
+                console.log('id', id)
+
+                var suffix = req.files.custom_map_image.name.match(/.*(\..+)/)
+                suffix = suffix ? suffix[1] : ''
+
+                // make remark that map is being prepared
+                maps.updateById(id.toString(),
+                    {$set: {
+                        custom: {
+                            state: 'under construction'
+                        }
+                    }},
+                    function(a, b, c) {
+                        console.log('custom map ' + id + ' is being created', a?a:'', b?b:'', c?c:'')
+                    })
+
+                // create map-specific folder
+                fs.mkdirSync(dst)
+
+                // move uploaded file across partitions
+                var is = fs.createReadStream(imageFile)
+                var os = fs.createWriteStream(dst + 'original')
+                os.on('error', function(ex) {
+                    console.log('error when moving file', imageFile, ex)
+                })
+
+                // initiate generating of thumbnails once the original is transfered
+                os.on('close', function(err) {
+                    console.log('image moved to ' + dst + ' - starting conversion')
+                    fs.unlink(imageFile)
+
+                    // prepare thumbnail and slices
+                    var cu = require('./convert-utils')
+                    fs.mkdirSync(dst + 'slices')
+                    cu.prepareThumbnail(dst, suffix)
+                    cu.prepareTiles(dst, suffix, function(info) {
+                        console.log('activating custom map ' + id + ' in db', info)
+
+                        // activate custom map in db
+                        maps.updateById(id,
+                            {$set: {
+                                zoom: info.zoomRange > 0 ? "11" : "10",
+                                latlon : ["0.0", "0.0"],
+                                custom: {
+                                    state: "ready",
+                                    path: id,
+                                    zoomRange: info.zoomRange,
+                                    tilesWidths: info.tilesWidths,
+                                    tilesHeights: info.tilesHeights,
+                                    suffix: suffix
+                                }
+                            }},
+                            function(a, b, c) {
+                                console.log('custom map ' + id + ' was activated in db', a?a:'', b?b:'', c?c:'')
+                            })
+                    })
+                });
+
+                // start moving the original file
+                is.pipe(os)
+            }
+
         	res.redirect(settings.BASE_URI + "/maps");
         });
     }

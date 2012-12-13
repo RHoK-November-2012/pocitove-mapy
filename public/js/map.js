@@ -5,31 +5,19 @@
 
   // map based on custom images
   //  custompath - path to tiles of map
-  function initialize_custom_map(latlng, zoom, custompath) {
+  function initialize_custom_map(latlng, zoom, custom) {
     var MIN_ZOOM = 10;
-    var MAX_ZOOM = 14;
-
-    function formatNumber(n) {
-      var ret = "" + n
-
-      ret = "000".substr(0, 3 - ret.length) + ret
-
-      return ret
-    }
+    var MAX_ZOOM = MIN_ZOOM + custom.zoomRange;
 
     var customTypeOptions = {
       getTileUrl: function(coord, zoom) {
           var normalizedCoord = getNormalizedCoord(coord, zoom);
 
-          zoom -= MIN_ZOOM;
+          if (normalizedCoord) {
+            return '/custommap/' + custom.path + '/slices/' + normalizedCoord  + custom.suffix
+          }
 
-          if (!normalizedCoord) { return null; }
-
-          var bound = Math.pow(2, zoom);
-
-          return '/custommap/' + custompath + '/slices/level-' + zoom + '-'
-            + formatNumber(bound * normalizedCoord.y + normalizedCoord.x)
-            + ".png"
+          return null
       },
       tileSize: new google.maps.Size(256, 256),
       maxZoom: MAX_ZOOM,
@@ -51,23 +39,27 @@
     map.mapTypes.set('custom', customMapType);
     map.setMapTypeId('custom');
 
-    // wrap prevention by http://stackoverflow.com/questions/11411246/google-maps-api-v3-prevent-imagemaptype-from-wrapping
+    // wrap prevention inspired by http://stackoverflow.com/questions/11411246/google-maps-api-v3-prevent-imagemaptype-from-wrapping
     function getNormalizedCoord(coord, zoom) {
-      var totalTiles = 1 << (zoom - MIN_ZOOM),
-          y = coord.y,
+      var myZoom = zoom - MIN_ZOOM
+      var y = coord.y,
           x = coord.x;
-      var originx = 1 << (zoom-1),
-          originy = 1 << (zoom-1);
+      var originX = (1 << (zoom-1)),
+          originY = (1 << (zoom-1));
+      var tilesX = custom.tilesWidths[myZoom],
+          tilesY = custom.tilesHeights[myZoom]
+      var offsetX = tilesX / 2,
+          offsetY = tilesY / 2
 
-      if(y < originx || y >= originx + totalTiles ||
-          x < originx || x >= originx + totalTiles) {
+      if( x < originX - offsetX || x >= originX + offsetX ||
+          y < originY - offsetY || y >= originY + offsetY ) {
           return null;
       }
 
-      x -= originx;
-      y -= originy;
+      x = x - originX + offsetX;
+      y = y - originY + offsetY;
 
-      return { x:x, y:y };
+      return '' + myZoom + '-' + (x + y * tilesX)
     }
 
     return map

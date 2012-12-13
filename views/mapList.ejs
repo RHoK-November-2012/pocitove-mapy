@@ -12,8 +12,12 @@
 <div class="row">
 	<div class="span12 mapItem">
 	<div class="span3 mapImage">
-		<% if (map.custompath) { %>
-			<img src="/custommap/<%= map.custompath %>/slices/level-0-000.png" class="mapPreview">
+		<% if (map.custom) { %>
+			<% if (map.custom.state == 'ready') { %>
+				<img src="/custommap/<%= map.custom.path %>/thumbnail" class="mapPreview">
+			<% } else { %>
+				<span><br><br><br>&nbsp;Mapa se vytváří</span>
+			<% } %>
 		<% } else { %>
 			<img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= map.latlon %>&amp;zoom=<%= map.zoom %>&amp;size=600x400&amp;key=AIzaSyBmIHT_b4PoGIXOztnFkbU6KDgPIdeFqwE&amp;sensor=false" class="mapPreview">
 		<% } %>
@@ -21,7 +25,12 @@
 	<div class="span8">
 		<h2><%= map.title %></h2>
 		<hr/>
-		<p><a href='/maps/<%= map._id %>/show'>Ukázat výsledky mapy</a> · <a href='/maps/<%= map._id %>/fill'>Zadat vlastní pocity</a><% if (map.creator===user && user) { %> · <a href='/maps/<%= map._id %>/edit'>Upravit definici mapy</a> (jste autorem) <% }; %>
+		<p>
+			<% if (!map.custom || map.custom.state == 'ready') { %>
+				<a href='/maps/<%= map._id %>/show'>Ukázat výsledky mapy</a> · <a href='/maps/<%= map._id %>/fill'>Zadat vlastní pocity</a><% if (map.creator===user && user) { %> · <a href='/maps/<%= map._id %>/edit'>Upravit definici mapy</a> (jste autorem) <% }; %>
+			<% } else { %>
+				<span>Mapa se vytváří ... po chvíli stlačte F5</span>
+			<% } %>
 		<p><%- map.comment %></p>
 		<% start = new Date(map.start); end = new Date(map.end); %>
 		<p class="dateInfo"><%= start.getDate() %>. <%= start.getMonth()+1 %>. <%= start.getFullYear() %> – <%= end.getDate() %>. <%= end.getMonth()+1 %>. <%= end.getFullYear() %></p>
